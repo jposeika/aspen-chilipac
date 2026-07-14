@@ -1038,8 +1038,11 @@ CREATE TABLE `ce_user_completed_milestones` (
 DROP TABLE IF EXISTS chilifresh_settings;
 CREATE TABLE `chilifresh_settings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL DEFAULT 'ChiliFresh',
   `enabled` tinyint(1) NOT NULL DEFAULT 1,
   `genericArtCode` tinytext DEFAULT NULL,
+  `chiliPacEnabled` tinyint(1) NOT NULL DEFAULT 0,
+  `chiliPacApiKey` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 DROP TABLE IF EXISTS cloud_library_availability;
@@ -3330,6 +3333,7 @@ CREATE TABLE `library` (
   `materialsRequestSendStaffEmailOnAssign` tinyint(1) DEFAULT 0,
   `materialsRequestNewEmail` varchar(125) DEFAULT NULL,
   `novelistSettingId` int(11) DEFAULT -1,
+  `chiliFreshSettingId` int(11) DEFAULT -1,
   `deluxeCertifiedPaymentsSettingId` int(11) DEFAULT -1,
   `paypalPayflowSettingId` int(11) DEFAULT -1,
   `thirdPartyRegistrationLocation` int(11) DEFAULT -1,

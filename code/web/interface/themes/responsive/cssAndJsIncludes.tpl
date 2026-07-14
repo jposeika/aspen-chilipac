@@ -22,9 +22,10 @@
 	{* Code is minified using uglify.js *}
 	<script src="/interface/themes/responsive/js/aspen.js?v={$aspenVersion|urlencode}.{$cssJsCacheCounter}"></script>
 
-	{* ChiliFresh ChiliPAC Vue components, built from code/web/vue with vite (npm run build) *}
-	{* TODO: only include when ChiliFresh integration is enabled for the library *}
-	<script src="/interface/themes/responsive/js/lib/chilifresh-components.min.js?v={$aspenVersion|urlencode}.{$cssJsCacheCounter}"></script>
+	{if !empty($chiliPacEnabled)}
+		{* ChiliFresh ChiliPAC Vue components, built from code/web/vue with vite (npm run build) *}
+		<script src="/interface/themes/responsive/js/lib/chilifresh-components.min.js?v={$aspenVersion|urlencode}.{$cssJsCacheCounter}"></script>
+	{/if}
 
 	{/strip}
 	<script type="text/javascript">

@@ -622,6 +622,7 @@ class BookCoverProcessor {
 
 			require_once ROOT_DIR . '/sys/Enrichment/ChiliFreshSetting.php';
 			$chiliFreshSettings = new ChiliFreshSetting();
+			$chiliFreshSettings->id = $library->chiliFreshSettingId;
 			if ($chiliFreshSettings->find(true)) {
 				if ($chiliFreshSettings->enabled) {
 					if ($this->chiliFresh($chiliFreshSettings->genericArtCode)) {

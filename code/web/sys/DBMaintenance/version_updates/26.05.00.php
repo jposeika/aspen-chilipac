@@ -492,6 +492,19 @@ function getUpdates26_05_00(): array {
 				 'ALTER TABLE aspen_sites DROP COLUMN IF EXISTS activeTicketFeed'
 			 ]
 		 ], //remove_site_active_ticket_feed
+		'chilifresh_chilipac_settings' => [
+			'title' => 'ChiliFresh ChiliPAC Settings',
+			'description' => 'Add ChiliPAC settings to the ChiliFresh integration and allow ChiliFresh settings to be scoped by library',
+			'continueOnError' => false,
+			'sql' => [
+				"ALTER TABLE chilifresh_settings ADD COLUMN name VARCHAR(50) NOT NULL DEFAULT 'ChiliFresh'",
+				"ALTER TABLE chilifresh_settings ADD COLUMN chiliPacEnabled TINYINT(1) NOT NULL DEFAULT 0",
+				"ALTER TABLE chilifresh_settings ADD COLUMN chiliPacApiKey VARCHAR(500) DEFAULT NULL",
+				"ALTER TABLE library ADD COLUMN chiliFreshSettingId INT(11) DEFAULT -1",
+				//Existing settings applied to all libraries, keep that behavior for the first (only) row
+				"UPDATE library SET chiliFreshSettingId = IFNULL((SELECT MIN(id) FROM chilifresh_settings), -1)",
+			],
+		], //chilifresh_chilipac_settings
 	];
 }
 

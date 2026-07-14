@@ -244,6 +244,7 @@ class Library extends DataObject {
 		$eContentLinkRules;
 	public $novelistSettingId;
 	public $syndeticsSettingId;
+	public $chiliFreshSettingId;
 	public $loralSettingId;
 	public $allowAutomaticSearchReplacements;
 	public $enableSearchInterpreter;
@@ -680,6 +681,17 @@ class Library extends DataObject {
 		$syndetics->find();
 		while ($syndetics->fetch()) {
 			$availableSyndeticsSettings[$syndetics->id] = $syndetics->name;
+		}
+
+		require_once ROOT_DIR . '/sys/Enrichment/ChiliFreshSetting.php';
+		$chiliFresh = new ChiliFreshSetting();
+		$availableChiliFreshSettings = [
+			'-1' => 'None',
+		];
+		$chiliFresh->orderBy('name');
+		$chiliFresh->find();
+		while ($chiliFresh->fetch()) {
+			$availableChiliFreshSettings[$chiliFresh->id] = $chiliFresh->name;
 		}
 
 		require_once ROOT_DIR . '/sys/Enrichment/LoralSetting.php';
@@ -3727,6 +3739,15 @@ class Library extends DataObject {
 						'values' => $availableSyndeticsSettings,
 						'label' => 'Syndetics Setting',
 						'description' => 'The Syndetics Settings to use',
+						'default' => '-1',
+						'hideInLists' => true,
+					],
+					'chiliFreshSettingId' => [
+						'property' => 'chiliFreshSettingId',
+						'type' => 'enum',
+						'values' => $availableChiliFreshSettings,
+						'label' => 'ChiliFresh Setting',
+						'description' => 'The ChiliFresh Settings to use',
 						'default' => '-1',
 						'hideInLists' => true,
 					],

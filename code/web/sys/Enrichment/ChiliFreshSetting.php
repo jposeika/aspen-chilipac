@@ -4,8 +4,24 @@ class ChiliFreshSetting extends DataObject
 {
 	public $__table = 'chilifresh_settings';    // table name
 	public $id;
+	public $name;
 	public $enabled;
 	public $genericArtCode;
+	public $chiliPacEnabled;
+	public $chiliPacApiKey;
+
+	private $_libraries;
+
+	function getEncryptedFieldNames(): array {
+		return ['chiliPacApiKey'];
+	}
+
+	public function getNumericColumnNames(): array {
+		return [
+			'enabled',
+			'chiliPacEnabled',
+		];
+	}
 
 	static $_objectStructure = [];
 
@@ -15,6 +31,7 @@ class ChiliFreshSetting extends DataObject
 			return self::$_objectStructure[$context];
 		}
 
+		$libraryList = Library::getLibraryList(!UserAccount::userHasPermission('Administer All Libraries'));
 		$structure = [
 			'id' => [
 				'property' => 'id',
@@ -22,10 +39,17 @@ class ChiliFreshSetting extends DataObject
 				'label' => 'Id',
 				'description' => 'The unique id',
 			],
+			'name' => [
+				'property' => 'name',
+				'type' => 'text',
+				'label' => 'Name',
+				'description' => 'A name to identify these settings',
+				'maxlength' => 50,
+			],
 			'enabled' => [
 				'property' => 'enabled',
 				'type' => 'checkbox',
-				'label' => 'Integration Enabled',
+				'label' => 'Cover Art Integration Enabled',
 				'description' => 'Whether or not ChiliFresh cover art integration is enabled',
 				'default' => 1,
 			],
@@ -37,9 +61,99 @@ class ChiliFreshSetting extends DataObject
 				'maxlength' => 255,
 				'required' => false,
 			],
+			'chiliPacEnabled' => [
+				'property' => 'chiliPacEnabled',
+				'type' => 'checkbox',
+				'label' => 'ChiliPAC Enabled',
+				'description' => 'Whether or not ChiliFresh ChiliPAC integration is enabled',
+				'default' => 0,
+			],
+			'chiliPacApiKey' => [
+				'property' => 'chiliPacApiKey',
+				'type' => 'storedPassword',
+				'label' => 'ChiliPAC API Key',
+				'description' => 'The API key supplied by ChiliFresh for ChiliPAC',
+				'required' => false,
+				'hideInLists' => true,
+			],
+			'libraries' => [
+				'property' => 'libraries',
+				'type' => 'multiSelect',
+				'listStyle' => 'checkboxSimple',
+				'label' => 'Libraries',
+				'description' => 'Define libraries that use these settings',
+				'values' => $libraryList,
+				'hideInLists' => true,
+			],
 		];
 
 		self::$_objectStructure[$context] = $structure;
 		return self::$_objectStructure[$context];
+	}
+
+	public function __get($name) {
+		if ($name == "libraries") {
+			if (!isset($this->_libraries) && $this->id) {
+				$this->_libraries = [];
+				$obj = new Library();
+				$obj->chiliFreshSettingId = $this->id;
+				$obj->find();
+				while ($obj->fetch()) {
+					$this->_libraries[$obj->libraryId] = $obj->libraryId;
+				}
+			}
+			return $this->_libraries;
+		} else {
+			return parent::__get($name);
+		}
+	}
+
+	public function __set($name, $value) {
+		if ($name == "libraries") {
+			$this->_libraries = $value;
+		} else {
+			parent::__set($name, $value);
+		}
+	}
+
+	public function update(string $context = '') : int|bool {
+		$ret = parent::update();
+		if ($ret !== FALSE) {
+			$this->saveLibraries();
+		}
+		return $ret;
+	}
+
+	public function insert(string $context = '') : int|bool {
+		$ret = parent::insert();
+		if ($ret !== FALSE) {
+			$this->saveLibraries();
+		}
+		return $ret;
+	}
+
+	public function saveLibraries() : void {
+		if (isset ($this->_libraries) && is_array($this->_libraries)) {
+			$libraryList = Library::getLibraryList(!UserAccount::userHasPermission('Administer All Libraries'));
+			foreach ($libraryList as $libraryId => $displayName) {
+				$library = new Library();
+				$library->libraryId = $libraryId;
+				$library->find(true);
+				if (in_array($libraryId, $this->_libraries)) {
+					//We want to apply the scope to this library
+					if ($library->chiliFreshSettingId != $this->id) {
+						$library->chiliFreshSettingId = $this->id;
+						$library->update();
+					}
+				} else {
+					//It should not be applied to this scope. Only change if it was applied to the scope
+					if ($library->chiliFreshSettingId == $this->id) {
+						$library->chiliFreshSettingId = -1;
+						$library->update();
+					}
+				}
+			}
+			unset($this->_libraries);
+		}
 	}
 }

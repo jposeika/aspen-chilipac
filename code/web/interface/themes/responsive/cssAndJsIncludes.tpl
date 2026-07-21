@@ -25,7 +25,8 @@
 	{if !empty($chiliPacEnabled)}
 		<script>
 			window.ChiliPAC = {ldelim}
-				key: '{$chiliPacApiKey|escape:javascript}'
+				key: '{$chiliPacApiKey|escape:javascript}',
+				baseUrl: 'https://api.chilifresh.com/api/'
 			{rdelim};
 		</script>
 		{* ChiliFresh ChiliPAC Vue components, built from code/web/vue with vite (npm run build) *}

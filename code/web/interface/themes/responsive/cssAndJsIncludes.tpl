@@ -23,6 +23,11 @@
 	<script src="/interface/themes/responsive/js/aspen.js?v={$aspenVersion|urlencode}.{$cssJsCacheCounter}"></script>
 
 	{if !empty($chiliPacEnabled)}
+		<script>
+			window.ChiliPAC = {ldelim}
+				key: '{$chiliPacApiKey|escape:javascript}'
+			{rdelim};
+		</script>
 		{* ChiliFresh ChiliPAC Vue components, built from code/web/vue with vite (npm run build) *}
 		<script src="/interface/themes/responsive/js/lib/chilifresh-components.min.js?v={$aspenVersion|urlencode}.{$cssJsCacheCounter}"></script>
 	{/if}

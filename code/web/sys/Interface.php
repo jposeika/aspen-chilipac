@@ -344,15 +344,18 @@ class UInterface extends Smarty {
 		$this->assign('shouldShowAdminAlert', $hasSqlUpdates || $hasOptionalUpdates);
 
 		$chiliPacEnabled = false;
+		$chiliPacApiKey = '';
 		if (!empty($library->chiliFreshSettingId) && $library->chiliFreshSettingId > 0) {
 			require_once ROOT_DIR . '/sys/Enrichment/ChiliFreshSetting.php';
 			$chiliFreshSetting = new ChiliFreshSetting();
 			$chiliFreshSetting->id = $library->chiliFreshSettingId;
 			if ($chiliFreshSetting->find(true) && $chiliFreshSetting->chiliPacEnabled) {
 				$chiliPacEnabled = true;
+				$chiliPacApiKey = $chiliFreshSetting->chiliPacApiKey ?? '';
 			}
 		}
 		$this->assign('chiliPacEnabled', $chiliPacEnabled);
+		$this->assign('chiliPacApiKey', $chiliPacApiKey);
 
 		if (empty($activeLanguage)) {
 			$isRTL = false;

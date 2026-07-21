@@ -356,6 +356,9 @@ class UInterface extends Smarty {
 		}
 		$this->assign('chiliPacEnabled', $chiliPacEnabled);
 		$this->assign('chiliPacApiKey', $chiliPacApiKey);
+		$this->assign('chiliPacToken', $_SESSION['chiliPacToken'] ?? '');
+		$this->assign('chiliPacHashId', $_SESSION['chiliPacHashId'] ?? '');
+		$this->assign('chiliPacStaff', $_SESSION['chiliPacStaff'] ?? false);
 
 		if (empty($activeLanguage)) {
 			$isRTL = false;

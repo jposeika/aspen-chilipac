@@ -66,6 +66,10 @@ class ChilipacApi {
 		return is_array($decoded) ? $decoded : null;
 	}
 
+	public function login(string $barcode, string $pin): ?array {
+		return $this->post('/patron/login', ['username' => $barcode, 'password' => $pin]);
+	}
+
 	public static function forLibrary(): ?self {
 		global $library;
 		if (empty($library->chiliFreshSettingId) || $library->chiliFreshSettingId < 0) {

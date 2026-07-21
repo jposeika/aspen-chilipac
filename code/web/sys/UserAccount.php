@@ -649,6 +649,19 @@ class UserAccount {
 					$primaryUser->searchPreferenceLanguage = $_COOKIE['searchPreferenceLanguage'];
 					$primaryUser->update();
 				}
+				if (!$validatedViaSSO && !empty($primaryUser->ils_barcode)) {
+					require_once ROOT_DIR . '/sys/Enrichment/ChilipacApi.php';
+					$chiliPacApi = ChilipacApi::forLibrary();
+					if ($chiliPacApi !== null) {
+						$chiliPacResult = $chiliPacApi->login($primaryUser->ils_barcode, $_REQUEST['password'] ?? '');
+						if ($chiliPacResult !== null) {
+							$_SESSION['chiliPacToken'] = $chiliPacResult['token'] ?? null;
+							$_SESSION['chiliPacUserId'] = $chiliPacResult['user_id'] ?? null;
+							$_SESSION['chiliPacHashId'] = $chiliPacResult['hashid'] ?? null;
+							$_SESSION['chiliPacStaff'] = $chiliPacResult['staff'] ?? false;
+						}
+					}
+				}
 				return $primaryUser;
 			}
 		} else {

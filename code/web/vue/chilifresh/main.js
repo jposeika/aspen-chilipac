@@ -1,5 +1,8 @@
 import { createApp } from 'vue';
+import { createPinia } from 'pinia';
 import ChiliPacPanel from './components/ChiliPacPanel.vue';
+
+const pinia = createPinia();
 
 const components = {
 	'chilipac-panel': ChiliPacPanel,
@@ -12,6 +15,7 @@ function mount(element, componentName, props) {
 		return null;
 	}
 	const app = createApp(component, props);
+	app.use(pinia);
 	app.mount(element);
 	return app;
 }

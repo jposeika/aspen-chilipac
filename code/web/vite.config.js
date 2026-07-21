@@ -1,8 +1,14 @@
 import { defineConfig } from 'vite';
+import { resolve } from 'path';
 import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
 	plugins: [vue()],
+	resolve: {
+		alias: {
+			'@': resolve(__dirname, 'vue/chilifresh'),
+		},
+	},
 	define: {
 		// The bundle is loaded directly via a script tag, so no downstream
 		// bundler will ever substitute this for us

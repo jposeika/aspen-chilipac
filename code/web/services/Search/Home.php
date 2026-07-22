@@ -89,8 +89,86 @@ class Search_Home extends Action {
 			$interface->assign('browseMode', 'covers'); // fail safe: if no browseMode is set at all, go with covers
 		}
 
+		if (!empty($interface->getVariable('chiliPacEnabled'))) {
+			$this->loadChiliPacRecentCarousels();
+		}
+
 		$interface->assign('activeMenuOption', 'home');
 		$this->display('home.tpl', 'Catalog Home', '');
+	}
+
+	private function loadChiliPacRecentCarousels(): void {
+		global $interface;
+		global $library;
+		global $memCache;
+
+		$cacheKey = 'chilipac_recent_bibs_' . $library->chiliFreshSettingId;
+		$recentBibs = $memCache->get($cacheKey);
+		if ($recentBibs === false) {
+			require_once ROOT_DIR . '/sys/Enrichment/ChilipacApi.php';
+			$chiliPacApi = ChilipacApi::forLibrary();
+			if ($chiliPacApi === null) {
+				return;
+			}
+			$response = $chiliPacApi->get('bibs/recent');
+			if ($response === null) {
+				return;
+			}
+			$recentBibs = [
+				'reviews' => $this->trimChiliPacBibs($response['data']['reviews']['data'] ?? []),
+				'ratings' => $this->trimChiliPacBibs($response['data']['ratings']['data'] ?? []),
+			];
+			//Filter out bibs that do not exist in this catalog so we never link to invalid records
+			$knownBibIds = $this->getKnownBibIds(array_merge(array_column($recentBibs['reviews'], 'bib_id'), array_column($recentBibs['ratings'], 'bib_id')));
+			foreach ($recentBibs as $section => $bibs) {
+				$recentBibs[$section] = array_values(array_filter($bibs, function ($bib) use ($knownBibIds) {
+					return isset($knownBibIds[$bib['bib_id']]);
+				}));
+			}
+			$memCache->set($cacheKey, $recentBibs, 2 * 60 * 60);
+		}
+
+		require_once ROOT_DIR . '/sys/Indexing/IndexingProfile.php';
+		$indexingProfile = new IndexingProfile();
+		$recordUrlComponent = 'Record';
+		$recordSource = 'ils';
+		if ($indexingProfile->find(true)) {
+			$recordUrlComponent = $indexingProfile->recordUrlComponent;
+			$recordSource = $indexingProfile->name;
+		}
+
+		$interface->assign('chiliPacRecordUrlComponent', $recordUrlComponent);
+		$interface->assign('chiliPacRecordSource', $recordSource);
+		$interface->assign('chiliPacRecentReviews', $recentBibs['reviews']);
+		$interface->assign('chiliPacRecentRatings', $recentBibs['ratings']);
+	}
+
+	private function getKnownBibIds(array $bibIds): array {
+		global $aspen_db;
+		$bibIds = array_unique($bibIds);
+		if (empty($bibIds) || !isset($aspen_db)) {
+			return [];
+		}
+		$placeholders = implode(',', array_fill(0, count($bibIds), '?'));
+		$stmt = $aspen_db->prepare("SELECT DISTINCT identifier FROM grouped_work_primary_identifiers WHERE identifier IN ($placeholders)");
+		$stmt->execute(array_map('strval', $bibIds));
+		return array_flip($stmt->fetchAll(PDO::FETCH_COLUMN));
+	}
+
+	private function trimChiliPacBibs(array $bibs): array {
+		$trimmed = [];
+		foreach ($bibs as $bib) {
+			if (empty($bib['bib_id'])) {
+				continue;
+			}
+			$trimmed[] = [
+				'bib_id' => $bib['bib_id'],
+				'title' => $bib['title'] ?? '',
+				'author' => $bib['author'] ?? '',
+				'isbn' => $bib['isbn'] ?? '',
+			];
+		}
+		return $trimmed;
 	}
 
 

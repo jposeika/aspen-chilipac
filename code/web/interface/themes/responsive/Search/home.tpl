@@ -164,6 +164,10 @@
 		</div>
 	</div>
 	{/if}
+
+	{if !empty($chiliPacEnabled)}
+		{include file="ChiliFresh/recentCarousels.tpl"}
+	{/if}
 {/strip}
 <script type="text/javascript">
 	$(function(){ldelim}

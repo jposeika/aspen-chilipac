@@ -51,6 +51,7 @@
 							{/foreach}
 							{if !empty($chiliPacEnabled) && !empty($chiliPacBibMap) && !empty($chiliPacBibMap[$workId])}
 								<div data-chilifresh-component="booklist-button" data-props='{ldelim}"id":"{$chiliPacBibMap[$workId]|escape:javascript}"{rdelim}'></div>
+								<div data-chilifresh-component="bookshelf-button" data-props='{ldelim}"id":"{$chiliPacBibMap[$workId]|escape:javascript}"{rdelim}'></div>
 							{/if}
 						</div>
 					</div>

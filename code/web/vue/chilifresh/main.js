@@ -3,6 +3,7 @@ import { createPinia } from 'pinia';
 import ChiliPacPanel from './components/ChiliPacPanel.vue';
 import InitLists from './components/InitLists.vue';
 import BooklistButton from './components/Booklist/BooklistButton.vue';
+import BookshelfButton from './components/Bookshelf/BookshelfButton.vue';
 
 const pinia = createPinia();
 
@@ -10,6 +11,7 @@ const components = {
 	'chilipac-panel': ChiliPacPanel,
 	'init-lists': InitLists,
 	'booklist-button': BooklistButton,
+	'bookshelf-button': BookshelfButton,
 };
 
 function mount(element, componentName, props) {

@@ -84,7 +84,9 @@ function truncate(str, num) {
 }
 
 function openLoginDialog() {
-	window.location.href = '/rl?back=' + encodeURIComponent(window.location.href);
+	// Shows the Aspen login modal; reloads the page on success so the
+	// ChiliPAC session token is picked up
+	window.AspenDiscovery.Account.ajaxLogin();
 }
 
 function openCreateBooklistDialog() {

@@ -182,6 +182,10 @@ class Record_Home extends GroupedWorkSubRecordHomeAction {
 			$interface->assign('shortId', $this->id);
 		}
 
+		if (!empty($interface->getVariable('chiliPacEnabled'))) {
+			$interface->assign('chiliPacBibId', $this->id);
+		}
+
 		$_SESSION['returnToAction'] = $this->id;
 		$_SESSION['returnToModule'] = 'Record';
 

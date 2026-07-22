@@ -2,6 +2,10 @@
 
 {strip}
 	<div class="col-xs-12">
+		{if !empty($chiliPacEnabled) && !empty($chiliPacBibId)}
+			<div data-chilifresh-component="init-lists" data-props='{ldelim}"bibs": ["{$chiliPacBibId|escape:javascript}"]{rdelim}'></div>
+		{/if}
+
 		{* Search Navigation *}
 		{include file="GroupedWork/search-results-navigation.tpl"}
 

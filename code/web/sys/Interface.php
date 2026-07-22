@@ -359,6 +359,11 @@ class UInterface extends Smarty {
 		$this->assign('chiliPacToken', $_SESSION['chiliPacToken'] ?? '');
 		$this->assign('chiliPacHashId', $_SESSION['chiliPacHashId'] ?? '');
 		$this->assign('chiliPacStaff', $_SESSION['chiliPacStaff'] ?? false);
+		if ($chiliPacEnabled) {
+			//Bust browser cache whenever the built ChiliPAC bundle changes
+			$chiliPacBundle = ROOT_DIR . '/interface/themes/responsive/js/lib/chilifresh-components.min.js';
+			$this->assign('chiliPacAssetVersion', file_exists($chiliPacBundle) ? filemtime($chiliPacBundle) : 0);
+		}
 
 		if (empty($activeLanguage)) {
 			$isRTL = false;

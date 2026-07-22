@@ -33,7 +33,8 @@
 			{rdelim};
 		</script>
 		{* ChiliFresh ChiliPAC Vue components, built from code/web/vue with vite (npm run build) *}
-		<script src="/interface/themes/responsive/js/lib/chilifresh-components.min.js?v={$aspenVersion|urlencode}.{$cssJsCacheCounter}"></script>
+		<link rel="stylesheet" href="/interface/themes/responsive/js/lib/chilifresh-components.min.css?v={$chiliPacAssetVersion}">
+		<script src="/interface/themes/responsive/js/lib/chilifresh-components.min.js?v={$chiliPacAssetVersion}"></script>
 	{/if}
 
 	{/strip}

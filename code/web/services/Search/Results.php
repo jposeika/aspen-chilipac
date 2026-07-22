@@ -637,16 +637,10 @@ class Search_Results extends ResultsAction {
 		$interface->assign('subpage', $displayTemplate);
 		$interface->assign('displayMode', $displayMode); // For user toggle switches
 
-		// Big one - our results //
-		$recordSet = $searchObject->getResultRecordHTML();
-		$interface->assign('recordSet', $recordSet);
-		$timer->logTime('load result records');
-		$memoryWatcher->logMemory('load result records');
-
 		if (!empty($interface->getVariable('chiliPacEnabled'))) {
 			global $aspen_db;
 			$permanentIds = array_column($searchObject->getResultRecordSet(), 'id');
-			$chiliPacBibIds = [];
+			$chiliPacBibMap = [];
 			if (!empty($permanentIds) && isset($aspen_db)) {
 				$placeholders = implode(',', array_fill(0, count($permanentIds), '?'));
 				$stmt = $aspen_db->prepare(
@@ -657,14 +651,22 @@ class Search_Results extends ResultsAction {
 				);
 				$stmt->execute($permanentIds);
 				foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+					$permanentId = $row['permanent_id'];
 					$bibId = $row['identifier'];
-					if ($bibId !== null && $bibId !== '' && !in_array($bibId, $chiliPacBibIds)) {
-						$chiliPacBibIds[] = $bibId;
+					if ($bibId !== null && $bibId !== '' && !isset($chiliPacBibMap[$permanentId])) {
+						$chiliPacBibMap[$permanentId] = $bibId;
 					}
 				}
 			}
-			$interface->assign('chiliPacBibIds', json_encode(array_values($chiliPacBibIds)));
+			$interface->assign('chiliPacBibMap', $chiliPacBibMap);
+			$interface->assign('chiliPacBibIds', json_encode(array_values($chiliPacBibMap)));
 		}
+
+		// Big one - our results //
+		$recordSet = $searchObject->getResultRecordHTML();
+		$interface->assign('recordSet', $recordSet);
+		$timer->logTime('load result records');
+		$memoryWatcher->logMemory('load result records');
 
 		//Setup explore more
 		$showExploreMoreBar = true;

@@ -10,10 +10,9 @@ export const useBooklistsStore = defineStore('booklists', {
 	}),
 
 	getters: {
+		// Note: state properties (booklists, latestBooklists, booklist) are accessed
+		// directly on the store; Pinia getters must not share names with state.
 		isLoaded: (state) => state.loaded,
-		booklists: (state) => state.booklists,
-		latestBooklists: (state) => state.latestBooklists,
-		booklist: (state) => state.booklist,
 	},
 
 	actions: {

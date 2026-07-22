@@ -49,6 +49,9 @@
 									<a href="#" class="btn btn-sm {if empty($curAction.btnType)}btn-action{else}{$curAction.btnType}{/if} btn-wrap{if !empty($curAction.cssClasses)} {$curAction.cssClasses}{/if}" {if !empty($curAction.target)}target="{$curAction.target}"{/if} {if !empty($curAction.id)}id="{$curAction.id}"{/if} onclick="{$curAction.onclick}" {if !empty($curAction.alt)}title="{translate text=$curAction.alt inAttribute=true}"{/if} {if !empty($curAction['data-needs-refresh'])}data-needs-refresh="{$curAction['data-needs-refresh']}"{/if} {if !empty($curAction['data-record-id'])}data-record-id="{$curAction['data-record-id']}"{/if} {if !empty($curAction['data-record-source'])}data-record-source="{$curAction['data-record-source']}"{/if} data-prompt-edition="{if $variation->getNumRelatedRecords() > 1 && $curAction.type == 'ils_hold' && $curAction.subtype == 'standard_ils_hold'}true{else}false{/if}">{if !empty($curAction.target) && $curAction.target == "_blank"}<i class="fas fa-external-link-alt" role="presentation"></i> {/if}{$curAction.title}</a>
 								{/if}
 							{/foreach}
+							{if !empty($chiliPacEnabled) && !empty($chiliPacBibMap) && !empty($chiliPacBibMap[$workId])}
+								<div data-chilifresh-component="booklist-button" data-props='{ldelim}"id":"{$chiliPacBibMap[$workId]|escape:javascript}"{rdelim}'></div>
+							{/if}
 						</div>
 					</div>
 				</div>

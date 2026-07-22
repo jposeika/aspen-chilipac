@@ -1,4 +1,7 @@
 <h1 class="hiddenTitle">{translate text='Catalog Search Results' isPublicFacing=true}</h1>
+{if !empty($chiliPacEnabled) && !empty($chiliPacBibIds)}
+	<div data-chilifresh-component="init-lists" data-props='{ldelim}"bibs": {$chiliPacBibIds}{rdelim}'></div>
+{/if}
 <div id="searchInfo">
 	{if !empty($hasAutomaticFacetsApplied)}
 		<div id="replacement-search-info-block" class="alert alert-info" role="alert">

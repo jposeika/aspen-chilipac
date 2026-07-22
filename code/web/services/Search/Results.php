@@ -643,6 +643,29 @@ class Search_Results extends ResultsAction {
 		$timer->logTime('load result records');
 		$memoryWatcher->logMemory('load result records');
 
+		if (!empty($interface->getVariable('chiliPacEnabled'))) {
+			global $aspen_db;
+			$permanentIds = array_column($searchObject->getResultRecordSet(), 'id');
+			$chiliPacBibIds = [];
+			if (!empty($permanentIds) && isset($aspen_db)) {
+				$placeholders = implode(',', array_fill(0, count($permanentIds), '?'));
+				$stmt = $aspen_db->prepare(
+					"SELECT gw.permanent_id, gwpi.identifier
+					FROM grouped_work gw
+					JOIN grouped_work_primary_identifiers gwpi ON gw.id = gwpi.grouped_work_id
+					WHERE gw.permanent_id IN ($placeholders)"
+				);
+				$stmt->execute($permanentIds);
+				foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+					$bibId = $row['identifier'];
+					if ($bibId !== null && $bibId !== '' && !in_array($bibId, $chiliPacBibIds)) {
+						$chiliPacBibIds[] = $bibId;
+					}
+				}
+			}
+			$interface->assign('chiliPacBibIds', json_encode(array_values($chiliPacBibIds)));
+		}
+
 		//Setup explore more
 		$showExploreMoreBar = true;
 		if (isset($_REQUEST['page']) && $_REQUEST['page'] > 1) {

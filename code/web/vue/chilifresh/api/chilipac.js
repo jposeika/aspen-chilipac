@@ -10,6 +10,13 @@ class ChilipacApi {
                 'Client-Key': window.ChiliPAC.key,
             },
         })
+
+        this.client.interceptors.request.use((config) => {
+            if (window.ChiliPAC.token) {
+                config.headers['Authorization'] = `Bearer ${window.ChiliPAC.token}`;
+            }
+            return config;
+        })
     }
 
     get(uri, params) {

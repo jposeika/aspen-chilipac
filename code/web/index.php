@@ -1107,6 +1107,23 @@ function loadModuleActionId() {
 		$_REQUEST['module'] = $matches[1];
 		$_REQUEST['action'] = 'Home';
 		$_REQUEST['id'] = '';
+	} elseif (preg_match("~(Profile)/([^/?]+)/([^/?]+)(\?.+)?~", $requestURI, $matches)) {
+		$_GET['module'] = $matches[1];
+		$_GET['action'] = $matches[2];
+		$_GET['id'] = $matches[3];
+		$_REQUEST['module'] = $matches[1];
+		$_REQUEST['action'] = $matches[2];
+		$_REQUEST['id'] = $matches[3];
+	} elseif (preg_match("~(Profile)/([^/?]+)(\?.+)?~", $requestURI, $matches)) {
+		$_GET['module'] = $matches[1];
+		$_GET['action'] = $matches[2];
+		$_REQUEST['module'] = $matches[1];
+		$_REQUEST['action'] = $matches[2];
+	} elseif (preg_match("~(Profile)/?~", $requestURI, $matches)) {
+		$_GET['module'] = $matches[1];
+		$_GET['action'] = 'Home';
+		$_REQUEST['module'] = $matches[1];
+		$_REQUEST['action'] = 'Home';
 	} elseif (preg_match('~/(Archive)/((?:[\\w\\d:]|%3A)+)/([^/?]+)~', $requestURI, $matches)) {
 		$_GET['module'] = $matches[1];
 		$_GET['id'] = urldecode($matches[2]); // Decodes colons % codes back into colons.

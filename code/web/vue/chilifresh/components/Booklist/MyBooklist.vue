@@ -84,7 +84,11 @@
 					<div v-if="item.data.annotation" class="annotation">
 						{{ item.data.annotation }}
 					</div>
-					<!-- TODO: item annotation (add/edit notes) dialog not yet converted -->
+					<div>
+						<a href="#" @click.prevent="openAnnotation(item)">
+							{{ item.data.annotation ? 'Edit notes' : 'Add notes' }}
+						</a>
+					</div>
 				</div>
 				<div class="listCard__actions" v-if="sortby === 'default'">
 					<span
@@ -117,6 +121,12 @@
 			:booklist="booklist"
 			@close="showAddWebsite = false"
 		/>
+		<ItemAnnotationDialog
+			v-if="annotationItem"
+			:booklist-id="booklist.id"
+			:item="annotationItem"
+			@close="annotationItem = null"
+		/>
 		<ConfirmationDialog
 			v-if="showDeleteItems"
 			title="Delete items"
@@ -134,6 +144,7 @@ import { useBooklistsStore } from '@/store/booklists';
 import BooklistSettingsDialog from './Modals/BooklistSettingsDialog.vue';
 import BooklistAddItemDialog from './Modals/BooklistAddItemDialog.vue';
 import BooklistAddWebsiteDialog from './Modals/BooklistAddWebsiteDialog.vue';
+import ItemAnnotationDialog from './Modals/ItemAnnotationDialog.vue';
 import ConfirmationDialog from '@/components/Modals/ConfirmationDialog.vue';
 
 const props = defineProps({
@@ -150,6 +161,7 @@ const showSettings = ref(false);
 const showAddItem = ref(false);
 const showAddWebsite = ref(false);
 const showDeleteItems = ref(false);
+const annotationItem = ref(null);
 const permalink = ref(null);
 const dragIndex = ref(null);
 
@@ -289,6 +301,10 @@ function itemUrl(item) {
 	return item.data.url;
 }
 
+function openAnnotation(item) {
+	annotationItem.value = item;
+}
+
 function copyLinkToClipboard() {
 	if (navigator.clipboard) {
 		navigator.clipboard.writeText(publicUrl.value);
@@ -380,6 +396,7 @@ onMounted(() => {
 }
 
 .annotation {
+	margin-top: 5px;
 	font-style: italic;
 	color: #808080;
 }

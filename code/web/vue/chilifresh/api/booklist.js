@@ -76,8 +76,10 @@ export default class BooklistApi {
 
     searchBibs(query, page) {
         return this.client.get(`booklist/${this.booklistId}/bibs`, {
-            query,
-            page
+            params: {
+                query,
+                page
+            }
         })
     }
 

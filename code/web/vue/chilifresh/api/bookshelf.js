@@ -5,9 +5,11 @@ export default class BookshelfApi {
 
     get(shelf, sort = "date", page = 1, query = null) {
         return this.client.get(`bookshelf/${shelf}/items`, {
-            sort,
-            page,
-            s: query,
+            params: {
+                sort,
+                page,
+                s: query,
+            }
         })
     }
 
@@ -24,8 +26,10 @@ export default class BookshelfApi {
 
     searchBibs(query, page) {
         return this.client.get(`bookshelf/bibs`, {
-            query,
-            page,
+            params: {
+                query,
+                page,
+            }
         })
     }
 

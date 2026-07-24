@@ -1,26 +1,29 @@
 <template>
 	<div v-if="booklistsStore.isLoaded && booklist">
-		<div class="titleBlock">
-			<h1>{{ booklist.name }}</h1>
-			<div class="btn-toolbar" style="margin-bottom: 1em;">
-				<button class="btn btn-default" @click.prevent="showSettings = true">
-					<i class="fas fa-edit" aria-hidden="true"></i> Edit
-				</button>
-				<a class="btn btn-default" :href="`/booklist/${booklist.id}/export/pdf`">
-					<i class="fas fa-download" aria-hidden="true"></i> Download PDF
-				</a>
-			</div>
+		<div class="titleBlock" style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 1em;">
+			<h1 style="margin: 0; margin-right: auto;">{{ booklist.name }}</h1>
+			<button class="btn btn-default" @click.prevent="showSettings = true">
+				<i class="fas fa-edit" aria-hidden="true"></i> Edit
+			</button>
+			<a class="btn btn-default" :href="`/booklist/${booklist.id}/export/pdf`">
+				<i class="fas fa-download" aria-hidden="true"></i> Download PDF
+			</a>
 		</div>
 
 		<p v-if="booklist.description">{{ booklist.description }}</p>
 
-		<div class="btn-toolbar" style="margin-bottom: 1em;">
-			<!-- TODO: Add Item and Add Website dialogs not yet converted -->
+		<div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 1em;">
+			<button class="btn btn-default" :disabled="savingOrder" @click.prevent="showAddItem = true">
+				<i class="fas fa-plus" aria-hidden="true"></i> Add Item
+			</button>
+			<button class="btn btn-default" :disabled="savingOrder" @click.prevent="showAddWebsite = true">
+				<i class="fas fa-plus" aria-hidden="true"></i> Add Website
+			</button>
 			<button class="btn btn-default" :disabled="selectedItems.length == 0 || savingOrder" @click.prevent="showDeleteItems = true">
 				<i class="fas fa-trash" aria-hidden="true"></i> Delete Selected
 			</button>
-			<div class="input-group" style="max-width: 400px;">
-				<span class="input-group-addon">Share list</span>
+			<div v-if="booklist.privacy !== 'draft'" class="chilipac-share">
+				<span class="chilipac-share__addon">Share list</span>
 				<input
 					type="text"
 					class="form-control"
@@ -28,14 +31,14 @@
 					readonly
 					:value="publicUrl"
 					@focus="$event.target.select()"
-					:disabled="booklist.privacy == 'draft'"
 				/>
-				<span class="input-group-btn">
-					<button class="btn btn-default" aria-label="Copy link" @click.prevent="copyLinkToClipboard">
-						<i class="fas fa-copy" aria-hidden="true"></i>
-					</button>
-				</span>
+				<button type="button" class="btn btn-default" aria-label="Copy link" @click.prevent="copyLinkToClipboard">
+					<i class="fas fa-copy" aria-hidden="true"></i>
+				</button>
 			</div>
+			<p v-else class="text-muted" style="margin: 0;">
+				Make this booklist private or public to share it.
+			</p>
 		</div>
 
 		<hr>
@@ -106,6 +109,17 @@
 			:booklist="booklist"
 			@close="showSettings = false"
 		/>
+		<BooklistAddItemDialog
+			v-if="showAddItem"
+			:booklist="booklist"
+			:record-source="recordSource"
+			@close="showAddItem = false"
+		/>
+		<BooklistAddWebsiteDialog
+			v-if="showAddWebsite"
+			:booklist="booklist"
+			@close="showAddWebsite = false"
+		/>
 		<ConfirmationDialog
 			v-if="showDeleteItems"
 			title="Delete items"
@@ -121,6 +135,8 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useBooklistsStore } from '@/store/booklists';
 import BooklistSettingsDialog from './Modals/BooklistSettingsDialog.vue';
+import BooklistAddItemDialog from './Modals/BooklistAddItemDialog.vue';
+import BooklistAddWebsiteDialog from './Modals/BooklistAddWebsiteDialog.vue';
 import ConfirmationDialog from '@/components/Modals/ConfirmationDialog.vue';
 
 const props = defineProps({
@@ -133,6 +149,8 @@ const sortby = ref('default');
 const selectedItems = ref([]);
 const savingOrder = ref(false);
 const showSettings = ref(false);
+const showAddItem = ref(false);
+const showAddWebsite = ref(false);
 const showDeleteItems = ref(false);
 const permalink = ref(null);
 const dragIndex = ref(null);
@@ -333,6 +351,35 @@ onMounted(() => {
 
 .listCard.is-dragging {
 	opacity: 0.5;
+}
+
+.chilipac-share {
+	display: flex;
+	max-width: 400px;
+}
+
+.chilipac-share .form-control {
+	flex: 1;
+	border-radius: 0;
+	border-left: 0;
+	border-right: 0;
+}
+
+.chilipac-share__addon {
+	display: flex;
+	align-items: center;
+	padding: 0 12px;
+	white-space: nowrap;
+	color: #555;
+	background-color: #eee;
+	border: 1px solid #ccc;
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+}
+
+.chilipac-share .btn {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
 }
 
 .annotation {

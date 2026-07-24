@@ -70,6 +70,38 @@ class ChilipacApi {
 		return $this->post('/patron/login', ['username' => $barcode, 'password' => $pin]);
 	}
 
+	/**
+	 * Recently reviewed and recently rated bibs.
+	 *
+	 * @return array{reviews: array, ratings: array}|null null if the request failed.
+	 */
+	public function getRecentBibs(): ?array {
+		$response = $this->get('bibs/recent');
+		if ($response === null) {
+			return null;
+		}
+		return [
+			'reviews' => $response['data']['reviews']['data'] ?? [],
+			'ratings' => $response['data']['ratings']['data'] ?? [],
+		];
+	}
+
+	/**
+	 * @return array|null List of bib records, or null if the request failed.
+	 */
+	public function getHighestRatedBibs(): ?array {
+		$response = $this->get('bibs/highest_rated');
+		return $response === null ? null : ($response['data'] ?? []);
+	}
+
+	/**
+	 * @return array|null List of bib records, or null if the request failed.
+	 */
+	public function getTrendingBibs(): ?array {
+		$response = $this->get('bibs/trending');
+		return $response === null ? null : ($response['data'] ?? []);
+	}
+
 	public static function forLibrary(): ?self {
 		global $library;
 		if (empty($library->chiliFreshSettingId) || $library->chiliFreshSettingId < 0) {

@@ -73,17 +73,14 @@
 				<div class="listCard__checkbox">
 					<input type="checkbox" :id="`listItem${item.id}`" :value="item.id" v-model="selectedItems" />
 				</div>
-				<a :href="item.data.url" class="listCard__image" tabindex="-1">
+				<a :href="itemUrl(item)" class="listCard__image" tabindex="-1">
 					<img :src="coverUrl(item)" alt="" />
 				</a>
 				<div class="listCard__content">
-					<a :href="item.data.url" :target="item.type == 'item' ? '_self' : '_blank'" class="listCard__title">
+					<a :href="itemUrl(item)" :target="item.type == 'item' ? '_self' : '_blank'" class="listCard__title">
 						{{ item.data.title }}
 					</a>
 					<div class="listCard__info">{{ item.data.author }}</div>
-					<div class="listCard__rating" v-if="item.type == 'item'">
-						<a :href="`${item.data.url}#reviews`">{{ reviewsLinkText(item) }}</a>
-					</div>
 					<div v-if="item.data.annotation" class="annotation">
 						{{ item.data.annotation }}
 					</div>
@@ -142,6 +139,7 @@ import ConfirmationDialog from '@/components/Modals/ConfirmationDialog.vue';
 const props = defineProps({
 	id: { type: String, required: true },
 	recordSource: { type: String, default: 'ils' },
+	recordUrlComponent: { type: String, default: 'Record' },
 });
 
 const booklistsStore = useBooklistsStore();
@@ -282,14 +280,13 @@ function coverUrl(item) {
 	return item.data.image;
 }
 
-function reviewsLinkText(item) {
-	if (item.rating.review_count == 0) {
-		return 'Be the first to review';
+// Catalog items link to Aspen's record details page; other item types (e.g.
+// websites) keep the URL supplied by ChiliPAC.
+function itemUrl(item) {
+	if (item.type === 'item' && item.data.bib_id) {
+		return `/${props.recordUrlComponent}/${encodeURIComponent(item.data.bib_id)}/Home`;
 	}
-	if (item.rating.review_count == 1) {
-		return '1 review';
-	}
-	return item.rating.review_count + ' reviews';
+	return item.data.url;
 }
 
 function copyLinkToClipboard() {

@@ -43,6 +43,7 @@
 
 		<hr>
 
+		<template v-if="displayItems.length">
 		<div class="actionWings" style="display: flex; justify-content: space-between; align-items: center;">
 			<h2>{{ displayItems.length }} items</h2>
 			<div class="form-inline">
@@ -104,6 +105,11 @@
 				</div>
 			</div>
 		</div>
+		</template>
+
+		<p v-else class="text-muted text-center" style="margin-top: 1.5em; font-size: 1.6em;">
+			Add your first item to booklist.
+		</p>
 
 		<BooklistSettingsDialog
 			v-if="showSettings"

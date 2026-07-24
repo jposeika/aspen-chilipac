@@ -363,6 +363,23 @@ class UInterface extends Smarty {
 			//Bust browser cache whenever the built ChiliPAC bundle changes
 			$chiliPacBundle = ROOT_DIR . '/interface/themes/responsive/js/lib/chilifresh-components.min.js';
 			$this->assign('chiliPacAssetVersion', file_exists($chiliPacBundle) ? filemtime($chiliPacBundle) : 0);
+
+			//Booklist types rarely change; cache them for a day and expose them in the ChiliPAC JS object.
+			global $memCache;
+			$booklistTypesCacheKey = 'chilipac_booklist_types_' . $library->chiliFreshSettingId;
+			$chiliPacBooklistTypes = $memCache->get($booklistTypesCacheKey);
+			if ($chiliPacBooklistTypes === false) {
+				require_once ROOT_DIR . '/sys/Enrichment/ChilipacApi.php';
+				$chiliPacApi = ChilipacApi::forLibrary();
+				$types = $chiliPacApi !== null ? $chiliPacApi->getBooklistTypes() : null;
+				if ($types !== null) {
+					$chiliPacBooklistTypes = $types;
+					$memCache->set($booklistTypesCacheKey, $chiliPacBooklistTypes, 24 * 60 * 60);
+				} else {
+					$chiliPacBooklistTypes = [];
+				}
+			}
+			$this->assign('chiliPacBooklistTypes', json_encode($chiliPacBooklistTypes));
 		}
 
 		if (empty($activeLanguage)) {

@@ -102,6 +102,16 @@ class ChilipacApi {
 		return $response === null ? null : ($response['data'] ?? []);
 	}
 
+	/**
+	 * The booklist types available for the library (e.g. Booklist, Resource guide, Storytime).
+	 *
+	 * @return array|null List of ['id' => ..., 'name' => ...], or null if the request failed.
+	 */
+	public function getBooklistTypes(): ?array {
+		$response = $this->get('booklist/types');
+		return $response === null ? null : ($response['data'] ?? []);
+	}
+
 	public static function forLibrary(): ?self {
 		global $library;
 		if (empty($library->chiliFreshSettingId) || $library->chiliFreshSettingId < 0) {

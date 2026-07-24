@@ -29,7 +29,8 @@
 				baseUrl: 'https://api.chilifresh.com/api/',
 				token: '{$chiliPacToken|escape:javascript}',
 				hashId: '{$chiliPacHashId|escape:javascript}',
-				staff: {if !empty($chiliPacStaff)}true{else}false{/if}
+				staff: {if !empty($chiliPacStaff)}true{else}false{/if},
+				booklistTypes: {if !empty($chiliPacBooklistTypes)}{$chiliPacBooklistTypes}{else}[]{/if}
 			{rdelim};
 		</script>
 		{* ChiliFresh ChiliPAC Vue components, built from code/web/vue with vite (npm run build) *}

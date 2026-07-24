@@ -166,7 +166,7 @@
 	{/if}
 
 	{if !empty($chiliPacEnabled)}
-		{include file="ChiliFresh/recentCarousels.tpl"}
+		{include file="ChiliFresh/carousels.tpl"}
 	{/if}
 {/strip}
 <script type="text/javascript">

@@ -90,43 +90,15 @@ class Search_Home extends Action {
 		}
 
 		if (!empty($interface->getVariable('chiliPacEnabled'))) {
-			$this->loadChiliPacRecentCarousels();
+			$this->loadChiliPacCarousels();
 		}
 
 		$interface->assign('activeMenuOption', 'home');
 		$this->display('home.tpl', 'Catalog Home', '');
 	}
 
-	private function loadChiliPacRecentCarousels(): void {
+	private function loadChiliPacCarousels(): void {
 		global $interface;
-		global $library;
-		global $memCache;
-
-		$cacheKey = 'chilipac_recent_bibs_' . $library->chiliFreshSettingId;
-		$recentBibs = $memCache->get($cacheKey);
-		if ($recentBibs === false) {
-			require_once ROOT_DIR . '/sys/Enrichment/ChilipacApi.php';
-			$chiliPacApi = ChilipacApi::forLibrary();
-			if ($chiliPacApi === null) {
-				return;
-			}
-			$response = $chiliPacApi->get('bibs/recent');
-			if ($response === null) {
-				return;
-			}
-			$recentBibs = [
-				'reviews' => $this->trimChiliPacBibs($response['data']['reviews']['data'] ?? []),
-				'ratings' => $this->trimChiliPacBibs($response['data']['ratings']['data'] ?? []),
-			];
-			//Filter out bibs that do not exist in this catalog so we never link to invalid records
-			$knownBibIds = $this->getKnownBibIds(array_merge(array_column($recentBibs['reviews'], 'bib_id'), array_column($recentBibs['ratings'], 'bib_id')));
-			foreach ($recentBibs as $section => $bibs) {
-				$recentBibs[$section] = array_values(array_filter($bibs, function ($bib) use ($knownBibIds) {
-					return isset($knownBibIds[$bib['bib_id']]);
-				}));
-			}
-			$memCache->set($cacheKey, $recentBibs, 2 * 60 * 60);
-		}
 
 		require_once ROOT_DIR . '/sys/Indexing/IndexingProfile.php';
 		$indexingProfile = new IndexingProfile();
@@ -136,16 +108,79 @@ class Search_Home extends Action {
 			$recordUrlComponent = $indexingProfile->recordUrlComponent;
 			$recordSource = $indexingProfile->name;
 		}
-
 		$interface->assign('chiliPacRecordUrlComponent', $recordUrlComponent);
 		$interface->assign('chiliPacRecordSource', $recordSource);
-		$interface->assign('chiliPacRecentReviews', $recentBibs['reviews']);
-		$interface->assign('chiliPacRecentRatings', $recentBibs['ratings']);
+
+		//The recent endpoint returns two lists (reviews and ratings); the others return a single list.
+		$recentBibs = $this->getChiliPacCarouselData('recent', 'bibs/recent', function ($response) {
+			return [
+				'reviews' => $response['data']['reviews']['data'] ?? [],
+				'ratings' => $response['data']['ratings']['data'] ?? [],
+			];
+		});
+		if ($recentBibs !== null) {
+			$interface->assign('chiliPacRecentReviews', $recentBibs['reviews']);
+			$interface->assign('chiliPacRecentRatings', $recentBibs['ratings']);
+		}
+
+		$highestRated = $this->getChiliPacCarouselData('highest_rated', 'bibs/highest_rated', function ($response) {
+			return ['items' => $response['data'] ?? []];
+		});
+		if ($highestRated !== null) {
+			$interface->assign('chiliPacHighestRated', $highestRated['items']);
+		}
+
+		$trending = $this->getChiliPacCarouselData('trending', 'bibs/trending', function ($response) {
+			return ['items' => $response['data'] ?? []];
+		});
+		if ($trending !== null) {
+			$interface->assign('chiliPacTrending', $trending['items']);
+		}
+	}
+
+	/**
+	 * Fetch, trim, filter and cache the bibs for one ChiliPAC carousel endpoint.
+	 * $extractor receives the decoded response and returns a map of section name => raw bib array.
+	 *
+	 * @return array|null Map of section name => trimmed/filtered bibs, or null if the API is unavailable.
+	 */
+	private function getChiliPacCarouselData(string $cacheSuffix, string $endpoint, callable $extractor): ?array {
+		global $library;
+		global $memCache;
+
+		$cacheKey = 'chilipac_' . $cacheSuffix . '_bibs_' . $library->chiliFreshSettingId;
+		$data = $memCache->get($cacheKey);
+		if ($data === false) {
+			require_once ROOT_DIR . '/sys/Enrichment/ChilipacApi.php';
+			$chiliPacApi = ChilipacApi::forLibrary();
+			if ($chiliPacApi === null) {
+				return null;
+			}
+			$response = $chiliPacApi->get($endpoint);
+			if ($response === null) {
+				return null;
+			}
+			$data = [];
+			$allBibIds = [];
+			foreach ($extractor($response) as $section => $bibs) {
+				$data[$section] = $this->trimChiliPacBibs($bibs);
+				$allBibIds = array_merge($allBibIds, array_column($data[$section], 'bib_id'));
+			}
+			//Filter out bibs that do not exist in this catalog so we never link to invalid records
+			$knownBibIds = $this->getKnownBibIds($allBibIds);
+			foreach ($data as $section => $bibs) {
+				$data[$section] = array_values(array_filter($bibs, function ($bib) use ($knownBibIds) {
+					return isset($knownBibIds[$bib['bib_id']]);
+				}));
+			}
+			$memCache->set($cacheKey, $data, 2 * 60 * 60);
+		}
+		return $data;
 	}
 
 	private function getKnownBibIds(array $bibIds): array {
 		global $aspen_db;
-		$bibIds = array_unique($bibIds);
+		$bibIds = array_values(array_unique($bibIds));
 		if (empty($bibIds) || !isset($aspen_db)) {
 			return [];
 		}

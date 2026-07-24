@@ -139,6 +139,19 @@ const dragIndex = ref(null);
 
 const booklist = computed(() => booklistsStore.booklist);
 
+// The breadcrumb is rendered server side as a generic "Booklist" label since the
+// name is only known once this component fetches it. Update it here (and whenever
+// the name changes, e.g. after editing) rather than making a second backend call.
+watch(() => booklist.value?.name, (name) => {
+	if (!name) {
+		return;
+	}
+	const crumb = document.querySelector('.breadcrumbs .breadcrumb li:last-child a');
+	if (crumb) {
+		crumb.textContent = name;
+	}
+});
+
 // The items in the currently selected sort order. Dragging is only allowed in
 // the default order, in which case reordering is persisted.
 const sortedItems = computed(() => {

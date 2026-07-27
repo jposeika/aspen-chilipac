@@ -6,6 +6,7 @@ import BooklistButton from './components/Booklist/BooklistButton.vue';
 import BookshelfButton from './components/Bookshelf/BookshelfButton.vue';
 import MyBooklistsPage from './components/Booklist/MyBooklistsPage.vue';
 import MyBooklist from './components/Booklist/MyBooklist.vue';
+import MyBookshelfPage from './components/Bookshelf/MyBookshelfPage.vue';
 
 const pinia = createPinia();
 
@@ -16,6 +17,7 @@ const components = {
 	'bookshelf-button': BookshelfButton,
 	'my-booklists-page': MyBooklistsPage,
 	'my-booklist': MyBooklist,
+	'my-bookshelf-page': MyBookshelfPage,
 };
 
 function mount(element, componentName, props) {

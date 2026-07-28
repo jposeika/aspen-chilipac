@@ -69,6 +69,16 @@
 		{/foreach}
 	</div>
 	<div class="menu-section menu-section-right">
+		{if !empty($chiliPacEnabled)}
+			<a href="/Profile/Home" class="menu-icon menu-bar-option" title="{translate text='My Profile' inAttribute=true isPublicFacing=true}">
+				<i class="fas fa-id-card fa-lg" role="presentation"></i>
+				<span class="menu-bar-label hidden-inline-block-xs">{translate text="My Profile" isPublicFacing=true}</span>
+			</a>
+			<a href="/Profile/Booklists" class="menu-icon menu-bar-option" title="{translate text='My Booklists' inAttribute=true isPublicFacing=true}">
+				<i class="fas fa-list fa-lg" role="presentation"></i>
+				<span class="menu-bar-label hidden-inline-block-xs">{translate text="My Booklists" isPublicFacing=true}</span>
+			</a>
+		{/if}
 		{if !empty($loggedIn)}{* Logged In *}
 			<div class="dropdown menuToggleButton accountMenu" style="display:inline-block;">
 			<a tabindex="0" class="dropdown-toggle menu-icon menu-bar-option" role="button" title="{translate text="Account" inAttribute=true isPublicFacing=true}" aria-label="{translate text="Account" inAttribute=true isPublicFacing=true}" aria-haspopup="true" aria-expanded="false" id="account-menu-dropdown">

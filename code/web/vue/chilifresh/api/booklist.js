@@ -1,7 +1,24 @@
+import queryString from 'query-string'
+
 export default class BooklistApi {
     constructor(client, booklistId = null) {
         this.client = client
         this.booklistId = booklistId
+    }
+
+    search(params) {
+        return this.client.get('booklist/search', {
+            params,
+            // Serialize arrays as type[0]=.. to match the filter/URL format.
+            paramsSerializer: (p) => queryString.stringify(p, { arrayFormat: 'index' }),
+        })
+    }
+
+    searchUsers(params) {
+        return this.client.get('booklist/users/search', {
+            params,
+            paramsSerializer: (p) => queryString.stringify(p, { arrayFormat: 'index' }),
+        })
     }
 
     get() {

@@ -328,7 +328,13 @@ class Record_AJAX extends JSON_Action {
 		global $library;
 		if (UserAccount::isLoggedIn()) {
 			$user = UserAccount::getLoggedInUser();
-			$id = $_REQUEST['id'];
+			//Routing prefixes record ids with the name of their indexing profile. The
+			//record driver needs that prefix: without it the driver falls back to a
+			//profile type of ils, so getIdWithSource() reports ils:1234 and stops
+			//matching the grouped work's related records on any install whose profile
+			//is named something else. The lookups further down want the bare id.
+			$recordId = $_REQUEST['id'];
+			$id = $recordId;
 			if (strpos($id, ':') > 0) {
 				[
 					,
@@ -336,6 +342,9 @@ class Record_AJAX extends JSON_Action {
 				] = explode(':', $id);
 			}
 			$recordSource = $_REQUEST['recordSource'];
+			if (strpos($recordId, ':') === false && !empty($recordSource)) {
+				$recordId = $recordSource . ':' . $id;
+			}
 			$interface->assign('recordSource', $recordSource);
 			if (isset($_REQUEST['volume'])) {
 				$interface->assign('volume', $_REQUEST['volume']);
@@ -351,7 +360,7 @@ class Record_AJAX extends JSON_Action {
 				$promptForEdition = false;
 			}
 
-			$marcRecord = new MarcRecordDriver($id);
+			$marcRecord = new MarcRecordDriver($recordId);
 
 			$allowEditionSelection = (isset($_REQUEST['allowEditionSelection']) && $_REQUEST['allowEditionSelection'] == '1');
 			$interface->assign('allowEditionSelection', $allowEditionSelection);
@@ -398,17 +407,18 @@ class Record_AJAX extends JSON_Action {
 			$isOnHold = $user->isRecordOnHold($recordSource, $id);
 			$interface->assign('isOnHold', $isOnHold);
 
-			if (!$this->setupHoldForm($recordSource, $rememberHoldPickupLocation, $marcRecord, $locations, $selectedVariationId, $promptForEdition)) {
+			$holdFormError = null;
+			if (!$this->setupHoldForm($recordSource, $rememberHoldPickupLocation, $marcRecord, $locations, $selectedVariationId, $promptForEdition, $holdFormError)) {
 				return [
 					'holdFormBypassed' => false,
 					'title' => translate([
 						'text' => 'Unable to place hold',
 						'isPublicFacing' => true,
 					]),
-					'message' => '<p>' . translate([
+					'message' => '<p>' . ($holdFormError ?? translate([
 							'text' => 'This account is not associated with a library, please contact your library.',
 							'isPublicFacing' => true,
-						]) . '</p>',
+						])) . '</p>',
 					'success' => false,
 				];
 			}
@@ -778,11 +788,12 @@ class Record_AJAX extends JSON_Action {
 
 			$promptForEdition = (isset($_REQUEST['promptForEdition']) && $_REQUEST['promptForEdition'] === "true");
 
-			if (!$this->setupHoldForm($recordSource, $rememberHoldPickupLocation, $marcRecord, $locations, -1, $promptForEdition)) {
+			$holdFormError = null;
+			if (!$this->setupHoldForm($recordSource, $rememberHoldPickupLocation, $marcRecord, $locations, -1, $promptForEdition, $holdFormError)) {
 				return [
 					'holdFormBypassed' => false,
 					'title' => 'Unable to place hold',
-					'modalBody' => '<p>This account is not associated with a library, please contact your library.</p>',
+					'modalBody' => '<p>' . ($holdFormError ?? 'This account is not associated with a library, please contact your library.') . '</p>',
 					'modalButtons' => "",
 				];
 			}
@@ -1950,7 +1961,7 @@ class Record_AJAX extends JSON_Action {
 		return $result;
 	}
 
-	private function setupHoldForm(string $recordSource, ?bool &$rememberHoldPickupLocation, MarcRecordDriver $marcRecord, ?array &$locations, $selectedVariationId, ?bool $promptForEdition): bool {
+	private function setupHoldForm(string $recordSource, ?bool &$rememberHoldPickupLocation, MarcRecordDriver $marcRecord, ?array &$locations, $selectedVariationId, ?bool $promptForEdition, ?string &$errorMessage = null): bool {
 		global $interface;
 		$user = UserAccount::getLoggedInUser();
 		if ($user->getCatalogDriver() == null) {
@@ -2012,7 +2023,17 @@ class Record_AJAX extends JSON_Action {
 		$interface->assign('promptForEdition', $promptForEdition);
 
 		//Check to see if the record must be picked up at the holding branch
-		$relatedRecord = $marcRecord->getGroupedWorkDriver()->getRelatedRecord($marcRecord->getIdWithSource());
+		$groupedWorkDriver = $marcRecord->getGroupedWorkDriver();
+		$relatedRecord = $groupedWorkDriver == null ? null : $groupedWorkDriver->getRelatedRecord($marcRecord->getIdWithSource());
+		if ($relatedRecord == null) {
+			//Nothing in the catalog matches the record being held, so there are no
+			//copies to work out pickup locations from.
+			$errorMessage = translate([
+				'text' => 'This title is not part of the catalog.',
+				'isPublicFacing' => true,
+			]);
+			return false;
+		}
 		$interface->assign('relatedRecord', $relatedRecord);
 		$pickupAt = $relatedRecord->getHoldPickupSetting();
 		$hasItemBasedPickupRestrictions = false;

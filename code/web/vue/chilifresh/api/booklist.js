@@ -14,6 +14,10 @@ export default class BooklistApi {
 		})
 	}
 
+	connections(params) {
+		return this.client.get('booklist/connections', { params })
+	}
+
 	searchUsers(params) {
 		return this.client.get('booklist/users/search', {
 			params,

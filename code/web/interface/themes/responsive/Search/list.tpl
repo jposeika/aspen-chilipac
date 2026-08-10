@@ -107,6 +107,11 @@
 		{if !empty($pageLinks.all)}<div class="text-center">{$pageLinks.all}</div>{/if}
 	{/if}
 
+	{if !empty($chiliPacConnectionsProps)}
+		{* Booklists and users related to the search term *}
+		<div data-chilifresh-component="connections-card" data-props='{$chiliPacConnectionsProps}'></div>
+	{/if}
+
 	{include file="Search/searchSuggestions.tpl"}
 
 	{include file="Search/spellingSuggestions.tpl"}

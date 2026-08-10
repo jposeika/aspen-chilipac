@@ -10,6 +10,7 @@ import BooklistFilter from './components/Booklist/BooklistFilter.vue';
 import BooklistSearchResults from './components/Booklist/BooklistSearchResults.vue';
 import BooklistSearchSidebar from './components/Booklist/BooklistSearchSidebar.vue';
 import MyBookshelfPage from './components/Bookshelf/MyBookshelfPage.vue';
+import ConnectionsCard from './components/Connections/ConnectionsCard.vue';
 
 const pinia = createPinia();
 
@@ -24,6 +25,7 @@ const components = {
 	'booklist-search-results': BooklistSearchResults,
 	'booklist-search-sidebar': BooklistSearchSidebar,
 	'my-bookshelf-page': MyBookshelfPage,
+	'connections-card': ConnectionsCard,
 };
 
 function mount(element, componentName, props) {

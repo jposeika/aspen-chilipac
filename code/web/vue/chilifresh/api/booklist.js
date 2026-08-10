@@ -29,6 +29,12 @@ export default class BooklistApi {
 		return this.client.get(`booklist/${this.booklistId}`)
 	}
 
+	// Public (unauthenticated) view of a booklist. Returns 404 when the booklist
+	// does not exist and 403 when it exists but is not public.
+	getPublic(params) {
+		return this.client.get(`public/booklist/${this.booklistId}`, { params })
+	}
+
 	create(data) {
 		return this.client.post("booklist", data)
 	}

@@ -103,6 +103,49 @@ class ChilipacApi {
 	}
 
 	/**
+	 * The HTTP status of the most recent request. Lets callers tell apart the
+	 * public booklist API's 404 (no such booklist) and 403 (not public).
+	 */
+	public function getResponseCode(): int {
+		return (int)$this->client->getResponseCode();
+	}
+
+	/**
+	 * A public booklist with all of its items. The API pages items 100 at a time,
+	 * so walk the pages until they run out.
+	 *
+	 * @param string $booklistId
+	 * @return array|null The booklist, or null if the request failed. Check
+	 *                    getResponseCode() to tell a 404/403 from a transport error.
+	 */
+	public function getPublicBooklist(string $booklistId): ?array {
+		$booklist = null;
+		$items = [];
+		$page = 1;
+		//Guard against a runaway loop if the API ever stops reporting total_pages.
+		$maxPages = 20;
+		do {
+			$params = ['count' => 100];
+			if ($page > 1) {
+				$params['page'] = $page;
+			}
+			$response = $this->get('public/booklist/' . rawurlencode($booklistId), $params);
+			if ($response === null || empty($response['data'])) {
+				return null;
+			}
+			if ($booklist === null) {
+				$booklist = $response['data'];
+			}
+			$items = array_merge($items, $response['data']['items']['data'] ?? []);
+			$totalPages = (int)($response['data']['items']['meta']['pagination']['total_pages'] ?? 1);
+			$page++;
+		} while ($page <= $totalPages && $page <= $maxPages);
+
+		$booklist['items']['data'] = $items;
+		return $booklist;
+	}
+
+	/**
 	 * The booklist types available for the library (e.g. Booklist, Resource guide, Storytime).
 	 *
 	 * @return array|null List of ['id' => ..., 'name' => ...], or null if the request failed.

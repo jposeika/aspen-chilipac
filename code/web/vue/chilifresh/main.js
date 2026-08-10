@@ -9,6 +9,8 @@ import MyBooklist from './components/Booklist/MyBooklist.vue';
 import BooklistFilter from './components/Booklist/BooklistFilter.vue';
 import BooklistSearchResults from './components/Booklist/BooklistSearchResults.vue';
 import BooklistSearchSidebar from './components/Booklist/BooklistSearchSidebar.vue';
+import PublicBooklist from './components/Booklist/PublicBooklist.vue';
+import PublicBooklistSidebar from './components/Booklist/PublicBooklistSidebar.vue';
 import MyBookshelfPage from './components/Bookshelf/MyBookshelfPage.vue';
 import ConnectionsCard from './components/Connections/ConnectionsCard.vue';
 
@@ -24,6 +26,8 @@ const components = {
 	'booklist-filter': BooklistFilter,
 	'booklist-search-results': BooklistSearchResults,
 	'booklist-search-sidebar': BooklistSearchSidebar,
+	'public-booklist': PublicBooklist,
+	'public-booklist-sidebar': PublicBooklistSidebar,
 	'my-bookshelf-page': MyBookshelfPage,
 	'connections-card': ConnectionsCard,
 };

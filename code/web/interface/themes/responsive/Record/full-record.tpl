@@ -91,6 +91,15 @@
 			<div class="row">
 				{include file=$moreDetailsTemplate}
 			</div>
+
+			{if !empty($chiliPacConnectionsProps)}
+				{* Booklists and users related to the title *}
+				<div class="row">
+					<div class="col-xs-12">
+						<div data-chilifresh-component="connections-card" data-props='{$chiliPacConnectionsProps}'></div>
+					</div>
+				</div>
+			{/if}
 		{/if}
 	</div>
 {/strip}

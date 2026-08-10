@@ -33,8 +33,9 @@ jobs:
 
       - name: Check for spaces instead of tabs
         run: |
-          # Find files that are modified in the pull request
-          MODIFIED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} | grep -v 'code/aspen_app')
+          # Find files that are modified in the pull request, skipping vendored
+          # third party libraries which follow their own formatting
+          MODIFIED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} | grep -v 'code/aspen_app' | grep -v 'code/web/dompdf/')
 
           # Loop through each file and check for spaces used instead of tabs
           EXIT_CODE=0

@@ -22,3 +22,6 @@
 *.RTF	 diff=astextplain
 
 *.sh eol=lf
+
+# Vendored third party libraries are committed exactly as published
+code/web/dompdf/** -text

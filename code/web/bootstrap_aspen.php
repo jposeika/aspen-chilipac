@@ -184,7 +184,13 @@ function aspen_autoloader($class) {
 			$className = ROOT_DIR . '/services/MyAccount/lib/' . $class . '.php';
 			require_once $className;
 		} else {
-			require_once $nameSpaceClass;
+			//An autoloader must decline classes it does not own rather than fail on
+			//them; libraries probe for optional classes with class_exists(), and a
+			//require_once on a missing file is fatal even inside a try.
+			$resolvedFile = stream_resolve_include_path($nameSpaceClass);
+			if ($resolvedFile !== false) {
+				require_once $resolvedFile;
+			}
 		}
 	} catch (Exception $e) {
 		AspenError::raiseError("Error loading class $class");

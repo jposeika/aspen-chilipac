@@ -110,7 +110,7 @@
 							{{ item.data.title }}
 						</component>
 						<div class="listCard__info" v-if="item.data.author">{{ item.data.author }}</div>
-						<div class="listCard__rating" v-if="item.rating">
+						<div class="listCard__rating" v-if="hasRating(item)">
 							<span class="listCard__stars" :aria-label="ratingLabel(item)">
 								<i
 									v-for="(star, index) in stars(item.rating.value)"
@@ -132,6 +132,7 @@
 						<BooklistButton :id="catalogBibId(item)" source="booklist" />
 						<BookshelfButton :id="catalogBibId(item)" source="booklist" />
 						<button
+							v-if="isInCatalog(item)"
 							type="button"
 							class="btn btn-sm btn-primary btn-wrap btn-block"
 							@click.prevent="placeHold(item, $event)"
@@ -198,6 +199,8 @@ const store = usePublicBooklistStore();
 const listsStore = useListsStore();
 const duplicating = ref(false);
 const duplicateError = ref('');
+// Bib ids on the current page that Aspen holds in its own catalog.
+const catalogBibs = ref(new Set());
 
 const booklist = computed(() => store.booklist);
 const hasToken = computed(() => !!window.ChiliPAC?.token);
@@ -217,14 +220,38 @@ watch(() => booklist.value?.name, (name) => {
 // The add to booklist / bookshelf buttons need to know which of the visible bibs
 // the logged in user has already saved, so refresh that whenever the page changes.
 watch(() => store.items, (items) => {
-	if (!hasToken.value || !items.length) {
+	const bibs = items.map(catalogBibId).filter((bib) => bib !== null);
+	loadCatalogBibs(bibs);
+	if (!hasToken.value || !bibs.length) {
 		return;
 	}
-	const bibs = items.map(catalogBibId).filter((bib) => bib !== null);
-	if (bibs.length) {
-		listsStore.loadBibs(bibs);
-	}
+	listsStore.loadBibs(bibs);
 });
+
+// A booklist is curated in ChiliPAC and can list items this library does not
+// own. Ask Aspen which of them it actually has before offering to link to a
+// record page or place a hold, both of which fail on an unknown bib.
+async function loadCatalogBibs(bibs) {
+	catalogBibs.value = new Set();
+	if (!bibs.length) {
+		return;
+	}
+	const query = bibs.map((bib) => `bibs[]=${encodeURIComponent(bib)}`).join('&');
+	try {
+		const response = await fetch(`/Booklists/AJAX?method=getCatalogBibs&${query}`);
+		const data = await response.json();
+		catalogBibs.value = new Set((data.bibs || []).map(String));
+	} catch (error) {
+		// Leave everything treated as not held locally rather than offering
+		// actions that would fail.
+		catalogBibs.value = new Set();
+	}
+}
+
+function isInCatalog(item) {
+	const bibId = catalogBibId(item);
+	return bibId !== null && catalogBibs.value.has(bibId);
+}
 
 // Windowed list of page numbers centred on the current page.
 const pageWindow = computed(() => {
@@ -274,12 +301,11 @@ function catalogBibId(item) {
 	return null;
 }
 
-// Use Aspen's cover system for catalog items; other item types (e.g. websites)
-// keep the image supplied by ChiliPAC.
+// Use Aspen's cover system for items it holds; everything else keeps the image
+// supplied by ChiliPAC.
 function coverUrl(item) {
-	const bibId = catalogBibId(item);
-	if (bibId) {
-		let url = `/bookcover.php?id=${encodeURIComponent(props.recordSource + ':' + bibId)}&size=medium`;
+	if (isInCatalog(item)) {
+		let url = `/bookcover.php?id=${encodeURIComponent(props.recordSource + ':' + catalogBibId(item))}&size=medium`;
 		if (item.data.isbn) {
 			url += `&isn=${encodeURIComponent(item.data.isbn)}`;
 		}
@@ -288,18 +314,23 @@ function coverUrl(item) {
 	return item.data.image;
 }
 
-// Catalog items link to Aspen's record details page; other item types (e.g.
-// websites) keep the URL supplied by ChiliPAC.
+// Items in the catalog link to Aspen's record details page; everything else
+// keeps the URL supplied by ChiliPAC, which may be nothing at all.
 function itemUrl(item) {
-	const bibId = catalogBibId(item);
-	if (bibId) {
-		return `/${props.recordUrlComponent}/${encodeURIComponent(bibId)}/Home`;
+	if (isInCatalog(item)) {
+		return `/${props.recordUrlComponent}/${encodeURIComponent(catalogBibId(item))}/Home`;
 	}
 	return item.data.url;
 }
 
 function linkTarget(item) {
-	return catalogBibId(item) ? '_self' : '_blank';
+	return isInCatalog(item) ? '_self' : '_blank';
+}
+
+// Websites and other non catalog entries are given an empty rating by the API,
+// which is not something anyone can rate or review, so only titles show stars.
+function hasRating(item) {
+	return item.type === 'item' && !!item.rating;
 }
 
 // Rating out of five, rounded to the nearest half star. Aspen only ships the
@@ -326,7 +357,7 @@ function ratingLabel(item) {
 
 function placeHold(item, event) {
 	const bibId = catalogBibId(item);
-	if (!bibId || !window.AspenDiscovery?.Record) {
+	if (!isInCatalog(item) || !window.AspenDiscovery?.Record) {
 		return;
 	}
 	window.AspenDiscovery.Record.showPlaceHold(

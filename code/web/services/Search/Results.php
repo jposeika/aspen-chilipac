@@ -673,25 +673,11 @@ class Search_Results extends ResultsAction {
 				], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP));
 
 				//Booklists and users related to the search term, shown below the pagination.
-				$interface->assign('chiliPacConnectionsProps', json_encode([
-					's' => $displayQuery,
-					'title' => translate([
-						'text' => 'Connections',
-						'isPublicFacing' => true,
-					]),
-					'info' => translate([
-						'text' => 'Booklists and readers connected to your search.',
-						'isPublicFacing' => true,
-					]),
-					'booklistsTitle' => translate([
-						'text' => 'User booklists having related items',
-						'isPublicFacing' => true,
-					]),
-					'usersTitle' => translate([
-						'text' => 'Users related to this item',
-						'isPublicFacing' => true,
-					]),
-				], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP));
+				require_once ROOT_DIR . '/sys/Enrichment/ChilipacApi.php';
+				$interface->assign('chiliPacConnectionsProps', ChilipacApi::getConnectionsProps($displayQuery, translate([
+					'text' => 'Booklists and readers connected to your search.',
+					'isPublicFacing' => true,
+				])));
 			}
 		}
 

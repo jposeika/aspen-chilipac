@@ -112,6 +112,37 @@ class ChilipacApi {
 		return $response === null ? null : ($response['data'] ?? []);
 	}
 
+	/**
+	 * Props for the connections-card Vue component, which lists booklists and users
+	 * related to a search term. Shared by search results and record pages so both
+	 * show the same labels.
+	 *
+	 * @param string $searchTerm The term connections are looked up for, e.g. the search query or a title.
+	 * @param string $infoText Tooltip explaining what the card shows on this page.
+	 * @return string|null The encoded props, or null when there is nothing to search for.
+	 */
+	public static function getConnectionsProps(string $searchTerm, string $infoText): ?string {
+		if (empty($searchTerm)) {
+			return null;
+		}
+		return json_encode([
+			's' => $searchTerm,
+			'title' => translate([
+				'text' => 'Connections',
+				'isPublicFacing' => true,
+			]),
+			'info' => $infoText,
+			'booklistsTitle' => translate([
+				'text' => 'User booklists having related items',
+				'isPublicFacing' => true,
+			]),
+			'usersTitle' => translate([
+				'text' => 'Users related to this item',
+				'isPublicFacing' => true,
+			]),
+		], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP);
+	}
+
 	public static function forLibrary(): ?self {
 		global $library;
 		if (empty($library->chiliFreshSettingId) || $library->chiliFreshSettingId < 0) {

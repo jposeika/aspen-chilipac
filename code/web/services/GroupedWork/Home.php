@@ -111,6 +111,18 @@ class GroupedWork_Home extends Action {
 		$interface->assign('activeFormat', $_REQUEST['activeFormat'] ?? null);
 		$interface->assign('searchSource', $_REQUEST['activeSearchSource'] ?? 'global');
 
+		//Booklists and users related to the title, shown at the bottom of the page.
+		if (!empty($interface->getVariable('chiliPacEnabled'))) {
+			require_once ROOT_DIR . '/sys/Enrichment/ChilipacApi.php';
+			require_once ROOT_DIR . '/sys/Utils/StringUtils.php';
+			//Search on the short title so the subtitle doesn't narrow the matches.
+			$connectionsTitle = StringUtils::removeTrailingPunctuation($this->recordDriver->getShortTitle());
+			$interface->assign('chiliPacConnectionsProps', ChilipacApi::getConnectionsProps($connectionsTitle, translate([
+				'text' => 'Booklists and readers connected to this title.',
+				'isPublicFacing' => true,
+			])));
+		}
+
 		// Display Page
 		$this->display('full-record.tpl', $this->recordDriver->getTitle(), '', false);
 	}

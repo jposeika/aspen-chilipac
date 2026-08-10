@@ -11,4 +11,8 @@
 			{/if}
 		</div>
 	{/if}
+	{if !empty($chiliPacBooklistSearchProps)}
+		{* Booklists matching the search term *}
+		<div data-chilifresh-component="booklist-search-sidebar" data-props='{$chiliPacBooklistSearchProps}'></div>
+	{/if}
 {/strip}

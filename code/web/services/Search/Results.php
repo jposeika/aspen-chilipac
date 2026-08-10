@@ -660,6 +660,18 @@ class Search_Results extends ResultsAction {
 			}
 			$interface->assign('chiliPacBibMap', $chiliPacBibMap);
 			$interface->assign('chiliPacBibIds', json_encode(array_values($chiliPacBibMap)));
+
+			//Booklists matching the search term, shown below the facets in the sidebar.
+			if (!empty($displayQuery)) {
+				$interface->assign('chiliPacBooklistSearchProps', json_encode([
+					's' => $displayQuery,
+					'count' => 5,
+					'title' => translate([
+						'text' => 'Booklists',
+						'isPublicFacing' => true,
+					]),
+				], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP));
+			}
 		}
 
 		// Big one - our results //

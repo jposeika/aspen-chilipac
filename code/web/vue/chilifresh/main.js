@@ -8,6 +8,7 @@ import MyBooklistsPage from './components/Booklist/MyBooklistsPage.vue';
 import MyBooklist from './components/Booklist/MyBooklist.vue';
 import BooklistFilter from './components/Booklist/BooklistFilter.vue';
 import BooklistSearchResults from './components/Booklist/BooklistSearchResults.vue';
+import BooklistSearchSidebar from './components/Booklist/BooklistSearchSidebar.vue';
 import MyBookshelfPage from './components/Bookshelf/MyBookshelfPage.vue';
 
 const pinia = createPinia();
@@ -21,6 +22,7 @@ const components = {
 	'my-booklist': MyBooklist,
 	'booklist-filter': BooklistFilter,
 	'booklist-search-results': BooklistSearchResults,
+	'booklist-search-sidebar': BooklistSearchSidebar,
 	'my-bookshelf-page': MyBookshelfPage,
 };
 

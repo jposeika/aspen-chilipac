@@ -1,4 +1,8 @@
 <h1 class="hiddenTitle">{translate text='Catalog Search Results' isPublicFacing=true}</h1>
+{if !empty($chiliPacEnabled) && !empty($chiliPacIsbnMap)}
+	{* Loads ChiliFresh ratings for every result on the page in a single request *}
+	<div data-chilifresh-component="init-ratings" data-props='{ldelim}"works": {$chiliPacIsbnMap}{rdelim}'></div>
+{/if}
 {if !empty($chiliPacEnabled) && !empty($chiliPacBibIds)}
 	<div data-chilifresh-component="init-lists" data-props='{ldelim}"bibs": {$chiliPacBibIds}{rdelim}'></div>
 {/if}

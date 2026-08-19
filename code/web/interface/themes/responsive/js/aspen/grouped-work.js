@@ -252,12 +252,15 @@ AspenDiscovery.GroupedWork = (function(){
 					}
 				}
 
-				if (data.numCustomerReviews === 0){
-					$("#borrowerReviewsPanel").hide();
-				}else{
-					var customerReviewsData = data.customerReviewsHtml;
-					if (customerReviewsData && customerReviewsData.length > 0) {
-						$("#customerReviewPlaceholder").html(customerReviewsData);
+				// ChiliFresh renders the reviews panel itself, so leave it as it was built
+				if (!data.chiliFreshReviews) {
+					if (data.numCustomerReviews === 0){
+						$("#borrowerReviewsPanel").hide();
+					}else{
+						var customerReviewsData = data.customerReviewsHtml;
+						if (customerReviewsData && customerReviewsData.length > 0) {
+							$("#customerReviewPlaceholder").html(customerReviewsData);
+						}
 					}
 				}
 			});

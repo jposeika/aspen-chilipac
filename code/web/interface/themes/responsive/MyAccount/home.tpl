@@ -97,7 +97,7 @@
 					{/if}
 				{/if}
 			{/if}
-			{if !empty($showRatings)}
+			{if !empty($showRatings) && empty($chiliPacReviewsEnabled)}{* Built on Aspen's own ratings, which ChiliFresh replaces *}
 				<h2>{translate text='Recommended for you' isPublicFacing=true}</h2>
 				{if empty($hasRatings)}
 					<p>

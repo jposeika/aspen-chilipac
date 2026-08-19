@@ -373,7 +373,7 @@
 							</div>
 						{/if}
 
-						{if !empty($showRatings) && $showComments}
+						{if !empty($showRatings) && $showComments && empty($chiliPacReviewsEnabled)}{* The review prompt belongs to Aspen's rater, which ChiliFresh replaces *}
 							<div class="panel" id="ratingsPreferencesPanel">
 								<a data-toggle="collapse" href="#ratingsPreferencesPanelBody" class="active">
 									<div class="panel-heading">

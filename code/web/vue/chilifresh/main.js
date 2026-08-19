@@ -13,6 +13,10 @@ import PublicBooklist from './components/Booklist/PublicBooklist.vue';
 import PublicBooklistSidebar from './components/Booklist/PublicBooklistSidebar.vue';
 import MyBookshelfPage from './components/Bookshelf/MyBookshelfPage.vue';
 import ConnectionsCard from './components/Connections/ConnectionsCard.vue';
+import InitRatings from './components/Reviews/InitRatings.vue';
+import RatingWidget from './components/Reviews/RatingWidget.vue';
+import RatingFull from './components/Reviews/RatingFull.vue';
+import ReviewsPage from './components/Reviews/ReviewsPage.vue';
 
 const pinia = createPinia();
 
@@ -30,6 +34,10 @@ const components = {
 	'public-booklist-sidebar': PublicBooklistSidebar,
 	'my-bookshelf-page': MyBookshelfPage,
 	'connections-card': ConnectionsCard,
+	'init-ratings': InitRatings,
+	'chilifresh-rating': RatingWidget,
+	'chilifresh-rating-full': RatingFull,
+	'chilifresh-reviews': ReviewsPage,
 };
 
 function mount(element, componentName, props) {

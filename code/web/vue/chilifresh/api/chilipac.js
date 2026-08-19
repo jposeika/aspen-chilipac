@@ -1,6 +1,7 @@
 import axios from 'axios'
 import Booklist from './booklist'
 import Bookshelf from './bookshelf'
+import Reviews from './reviews'
 import User from './user'
 
 class ChilipacApi {
@@ -42,6 +43,10 @@ class ChilipacApi {
 
 	bookshelf() {
 		return new Bookshelf(this.client)
+	}
+
+	reviews() {
+		return new Reviews(this.client)
 	}
 
 	user() {

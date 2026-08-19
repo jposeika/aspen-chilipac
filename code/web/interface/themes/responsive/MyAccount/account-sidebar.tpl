@@ -187,10 +187,10 @@
 							{/if}
 
 							{if empty($offline)}
-								{if $showRatings || $enableSavedSearches || (($enableReadingHistory || $enableCostSavings) && $userHasCatalogConnection) || $showFavorites}
+								{if ($showRatings && empty($chiliPacReviewsEnabled)) || $enableSavedSearches || (($enableReadingHistory || $enableCostSavings) && $userHasCatalogConnection) || $showFavorites}
 									<hr class="menu">
 								{/if}
-								{if !empty($showRatings)}
+								{if !empty($showRatings) && empty($chiliPacReviewsEnabled)}{* Built on Aspen's own ratings, which ChiliFresh replaces *}
 									<div class="myAccountLink"><a href="/MyAccount/SuggestedTitles">{translate text='Recommended For You' isPublicFacing=true}</span></a></div>
 									<ul class="account-submenu">
 									{if $user->disableRecommendations == 0}

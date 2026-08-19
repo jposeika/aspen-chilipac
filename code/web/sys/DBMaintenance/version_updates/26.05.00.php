@@ -505,6 +505,14 @@ function getUpdates26_05_00(): array {
 				"UPDATE library SET chiliFreshSettingId = IFNULL((SELECT MIN(id) FROM chilifresh_settings), -1)",
 			],
 		], //chilifresh_chilipac_settings
+		'chilifresh_chilipac_reviews' => [
+			'title' => 'ChiliFresh ChiliPAC Ratings and Reviews',
+			'description' => 'Allow ChiliFresh ratings and reviews to replace Aspen\'s own user ratings and reviews',
+			'continueOnError' => false,
+			'sql' => [
+				"ALTER TABLE chilifresh_settings ADD COLUMN chiliPacReviewsEnabled TINYINT(1) NOT NULL DEFAULT 0",
+			],
+		], //chilifresh_chilipac_reviews
 	];
 }
 

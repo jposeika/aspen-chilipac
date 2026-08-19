@@ -677,9 +677,39 @@ class GroupedWork_AJAX extends JSON_Action {
 	}
 
 	/** @noinspection PhpUnused */
+	/**
+	 * Aspen's own ratings and reviews are turned off either by the library's display settings or
+	 * because ChiliFresh has taken them over. Neither is checked by the rating/review endpoints
+	 * themselves, so guard them here rather than relying on the buttons being hidden.
+	 *
+	 * @return array|null An error result to return to the caller, or null when writing is allowed.
+	 */
+	private function getUserReviewsDisabledResult(bool $isReview) : ?array {
+		require_once ROOT_DIR . '/sys/Enrichment/ChiliFreshSetting.php';
+		if (ChiliFreshSetting::reviewsReplaceAspen()) {
+			return [
+				'result' => false,
+				'message' => 'Ratings and reviews are handled by ChiliFresh for this library.',
+			];
+		}
+		global $library;
+		$displaySettings = $library->getGroupedWorkDisplaySettings();
+		if ($isReview ? !$displaySettings->showComments : !$displaySettings->showRatings) {
+			return [
+				'result' => false,
+				'message' => 'Sorry, that feature is not enabled for this library.',
+			];
+		}
+		return null;
+	}
+
 	function rateTitle() : array {
 		$this->requireLoggedInUser();
 		$this->checkRequiredParameters(['id', 'rating']);
+		$disabledResult = $this->getUserReviewsDisabledResult(false);
+		if ($disabledResult !== null) {
+			return $disabledResult;
+		}
 		require_once(ROOT_DIR . '/sys/LocalEnrichment/UserWorkReview.php');
 		$rating = $_REQUEST['rating'];
 		//Save the rating
@@ -766,6 +796,17 @@ class GroupedWork_AJAX extends JSON_Action {
 			$numSyndicatedReviews += count($providerReviews);
 		}
 		$interface->assign('syndicatedReviews', $reviews);
+
+		//When ChiliFresh owns reviews it renders its own panel. Flag that so the caller leaves the
+		//panel alone instead of hiding it as it would for an empty set of Aspen reviews.
+		require_once ROOT_DIR . '/sys/Enrichment/ChiliFreshSetting.php';
+		if (ChiliFreshSetting::reviewsReplaceAspen()) {
+			return [
+				'numSyndicatedReviews' => $numSyndicatedReviews,
+				'syndicatedReviewsHtml' => $interface->fetch('GroupedWork/view-syndicated-reviews.tpl'),
+				'chiliFreshReviews' => true,
+			];
+		}
 
 		$userReviews = $recordDriver->getUserReviews();
 		foreach ($userReviews as $key => $review) {
@@ -865,6 +906,10 @@ class GroupedWork_AJAX extends JSON_Action {
 	function saveReview() : array {
 		$this->requireLoggedInUser();
 		$this->checkRequiredParameters(['id']);
+		$disabledResult = $this->getUserReviewsDisabledResult(true);
+		if ($disabledResult !== null) {
+			return $disabledResult;
+		}
 
 		$result = [];
 

@@ -249,10 +249,34 @@ abstract class RecordInterface {
 			'hideByDefault' => true,
 		];
 		if ($interface->getVariable('showComments')) {
-			$moreDetailsOptions['borrowerReviews'] = [
-				'label' => 'Borrower Reviews',
-				'body' => "<div id='customerReviewPlaceholder'></div>",
-			];
+			if ($interface->getVariable('chiliPacReviewsEnabled')) {
+				//ChiliFresh owns reviews. Reuse the borrowerReviews key so the tab keeps its place
+				//in each library's configured More Details order.
+				require_once ROOT_DIR . '/sys/Enrichment/ChilipacApi.php';
+				$permanentId = method_exists($this, 'getPermanentId') ? $this->getPermanentId() : null;
+				$chiliPacBibMap = empty($permanentId) ? [] : ChilipacApi::getBibMapForGroupedWorks([$permanentId]);
+				$chiliPacBibId = $chiliPacBibMap[$permanentId] ?? '';
+				if (!empty($chiliPacBibId)) {
+					//Include the ISBNs so counts cover every edition in the grouped work
+					$chiliPacProps = ['id' => (string)$chiliPacBibId];
+					if (method_exists($this, 'getISBNs')) {
+						$isbns = $this->getISBNs();
+						if (!empty($isbns) && is_array($isbns)) {
+							$chiliPacProps['isbns'] = array_values(array_unique($isbns));
+						}
+					}
+					$chiliPacReviewProps = htmlspecialchars(json_encode($chiliPacProps), ENT_QUOTES);
+					$moreDetailsOptions['borrowerReviews'] = [
+						'label' => 'Reviews',
+						'body' => "<div data-chilifresh-component='chilifresh-reviews' data-props=\"$chiliPacReviewProps\"></div>",
+					];
+				}
+			} else {
+				$moreDetailsOptions['borrowerReviews'] = [
+					'label' => 'Borrower Reviews',
+					'body' => "<div id='customerReviewPlaceholder'></div>",
+				];
+			}
 		}
 		if ($isbn ) {
 			$moreDetailsOptions['syndicatedReviews'] = [

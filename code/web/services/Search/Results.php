@@ -638,27 +638,19 @@ class Search_Results extends ResultsAction {
 		$interface->assign('displayMode', $displayMode); // For user toggle switches
 
 		if (!empty($interface->getVariable('chiliPacEnabled'))) {
-			global $aspen_db;
-			$permanentIds = array_column($searchObject->getResultRecordSet(), 'id');
-			$chiliPacBibMap = [];
-			if (!empty($permanentIds) && isset($aspen_db)) {
-				$placeholders = implode(',', array_fill(0, count($permanentIds), '?'));
-				$stmt = $aspen_db->prepare(
-					"SELECT gw.permanent_id, gwpi.identifier
-					FROM grouped_work gw
-					JOIN grouped_work_primary_identifiers gwpi ON gw.id = gwpi.grouped_work_id
-					WHERE gw.permanent_id IN ($placeholders)"
-				);
-				$stmt->execute($permanentIds);
-				foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-					$permanentId = $row['permanent_id'];
-					$bibId = $row['identifier'];
-					if ($bibId !== null && $bibId !== '' && !isset($chiliPacBibMap[$permanentId])) {
-						$chiliPacBibMap[$permanentId] = $bibId;
-					}
-				}
-			}
+			require_once ROOT_DIR . '/sys/Enrichment/ChilipacApi.php';
+			$recordSet = $searchObject->getResultRecordSet();
+			$permanentIds = array_column($recordSet, 'id');
+			$chiliPacBibMap = ChilipacApi::getBibMapForGroupedWorks($permanentIds);
 			$interface->assign('chiliPacBibMap', $chiliPacBibMap);
+
+			//ChiliFresh matches ratings by ISBN, so the whole page is resolved in one request.
+			if (!empty($interface->getVariable('chiliPacReviewsEnabled'))) {
+				$interface->assign('chiliPacIsbnMap', json_encode(
+					ChilipacApi::getIsbnMapForRecordSet($recordSet),
+					JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP
+				));
+			}
 			$interface->assign('chiliPacBibIds', json_encode(array_values($chiliPacBibMap)));
 
 			//Booklists matching the search term, shown below the facets in the sidebar.

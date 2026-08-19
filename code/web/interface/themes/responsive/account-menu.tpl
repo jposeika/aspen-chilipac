@@ -50,7 +50,7 @@
 			{if !empty($userHasCatalogConnection) && $showUserCirculationModules}
 				<div class="header-menu-option" ><a href="/MyAccount/LibraryCard">{if !empty($showAlternateLibraryCard)}{translate text='Your Library Card(s)' isPublicFacing=true}{else}{translate text='Your Library Card' isPublicFacing=true}{/if}</a></div>
 			{/if}
-			{if !empty($showRatings)}
+			{if !empty($showRatings) && empty($chiliPacReviewsEnabled)}{* Built on Aspen's own ratings, which ChiliFresh replaces *}
 				{if $user->disableRecommendations == 0}
 					<div class="header-menu-option" >
 						<a href="/MyAccount/SuggestedTitles">{translate text='Recommended For You' isPublicFacing=true}</a>

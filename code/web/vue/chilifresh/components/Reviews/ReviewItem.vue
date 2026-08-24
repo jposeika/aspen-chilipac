@@ -12,7 +12,6 @@
 			<StarRating
 				v-if="review.rating"
 				:rating="Number(review.rating)"
-				:width="72"
 				:label="`Rated ${review.rating} out of 5`"
 			/>
 		</div>

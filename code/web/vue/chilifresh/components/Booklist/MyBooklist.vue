@@ -277,7 +277,7 @@ function onDragEnd() {
 }
 
 const publicUrl = computed(() => {
-	const base = window.location.protocol + '//' + window.location.hostname + '/booklist/';
+	const base = window.location.protocol + '//' + window.location.hostname + '/Booklist/';
 	return base + (booklist.value.slug ? booklist.value.slug : booklist.value.id);
 });
 

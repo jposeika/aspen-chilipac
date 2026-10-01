@@ -19,7 +19,7 @@ function normalizeCounts(bibId, data) {
 	};
 }
 
-const emptyWorkRating = { rating: 0, reviewCount: 0, isbn: null };
+const emptyWorkRating = { rating: 0, reviewCount: 0, isbn: null, isbns: [] };
 
 export const useReviewsStore = defineStore('reviews', {
 	state: () => ({
@@ -49,12 +49,7 @@ export const useReviewsStore = defineStore('reviews', {
 				return;
 			}
 			try {
-				const response = await api.reviews().getCountsForIsbns(isbns);
-				// The response keys ISBNs as numbers; Aspen holds them as strings
-				const byIsbn = {};
-				(response.data.data || []).forEach((entry) => {
-					byIsbn[String(entry.isbn)] = entry;
-				});
+				const byIsbn = indexByIsbn(await api.reviews().getCountsForIsbns(isbns));
 				Object.entries(works).forEach(([workId, workIsbns]) => {
 					this.works[workId] = resolveWorkRating(workIsbns, byIsbn);
 				});
@@ -64,10 +59,41 @@ export const useReviewsStore = defineStore('reviews', {
 			this.worksLoaded = true;
 		},
 
+		/**
+		 * Re-read one work's rating, for after the patron posts a review of it.
+		 * @param {String} workId Grouped work id.
+		 * @param {Array} isbns That work's ISBNs, primary first.
+		 */
+		async reloadWorkRating(workId, isbns) {
+			if (!isbns.length) {
+				return;
+			}
+			try {
+				const byIsbn = indexByIsbn(await api.reviews().getCountsForIsbns(isbns.map(String)));
+				this.works[workId] = resolveWorkRating(isbns, byIsbn);
+			} catch (e) {
+				console.error('Could not reload ChiliFresh rating', e);
+			}
+		},
+
 		async loadRating(bibId, isbns = []) {
 			if (this.ratings[bibId] !== undefined) {
 				return this.ratings[bibId];
 			}
+			return this.fetchRating(bibId, isbns);
+		},
+
+		/**
+		 * Re-read a title's counts after the patron posts their own review. The counts already
+		 * held stay in place until the new ones land: blanking them first would unmount the
+		 * rating widget, and with it the review dialog the patron just posted from.
+		 */
+		async reloadRating(bibId, isbns = []) {
+			return this.fetchRating(bibId, isbns);
+		},
+
+		async fetchRating(bibId, isbns = []) {
+			// The rating widget and the reviews panel can both ask for the same title at once
 			if (this.inFlight[bibId]) {
 				return this.inFlight[bibId];
 			}
@@ -78,8 +104,9 @@ export const useReviewsStore = defineStore('reviews', {
 				})
 				.catch((e) => {
 					console.error('Could not load ChiliFresh ratings', e);
-					// Record the miss so the widget resolves instead of hanging on "loading"
-					this.ratings[bibId] = normalizeCounts(bibId, {});
+					// Record the miss so the widget resolves instead of hanging on "loading",
+					// but keep counts already on screen if this was a reload
+					this.ratings[bibId] ??= normalizeCounts(bibId, {});
 					return this.ratings[bibId];
 				})
 				.finally(() => {
@@ -91,6 +118,15 @@ export const useReviewsStore = defineStore('reviews', {
 	},
 });
 
+// The response keys ISBNs as numbers; Aspen holds them as strings
+function indexByIsbn(response) {
+	const byIsbn = {};
+	(response.data.data || []).forEach((entry) => {
+		byIsbn[String(entry.isbn)] = entry;
+	});
+	return byIsbn;
+}
+
 // Editions of the same work share a rating on the ChiliFresh side, so the first ISBN that
 // carries one speaks for the work. ISBNs arrive primary-first.
 function resolveWorkRating(workIsbns, byIsbn) {
@@ -101,8 +137,10 @@ function resolveWorkRating(workIsbns, byIsbn) {
 				rating: Number(entry.rating),
 				reviewCount: Number(entry.review_count || 0),
 				isbn: String(isbn),
+				isbns: workIsbns.map(String),
 			};
 		}
 	}
-	return emptyWorkRating;
+	// Carries the ISBNs even with no rating to match, so a review can still be posted
+	return { ...emptyWorkRating, isbns: workIsbns.map(String) };
 }

@@ -65,8 +65,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import api from '@/api/chilipac';
+import bus from '@/eventBus';
 import { useReviewsStore } from '@/store/reviews';
 import ReviewItem from './ReviewItem.vue';
 import ProReviewItem from './ProReviewItem.vue';
@@ -167,6 +168,15 @@ async function changePage(page) {
 }
 
 watch(sortBy, loadActiveTab);
+
+// A review posted from the rating widget changes both the counts and the reader list
+async function onReviewPosted() {
+	await reviewsStore.reloadRating(props.id, props.isbns);
+	await loadActiveTab();
+}
+
+bus.on('reviewPosted', onReviewPosted);
+onUnmounted(() => bus.off('reviewPosted', onReviewPosted));
 
 onMounted(async () => {
 	// Shares the in-flight request when the rating widget is loading the same title

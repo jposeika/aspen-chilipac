@@ -19,6 +19,11 @@ export default class ReviewsApi {
 		})
 	}
 
+	// Post the signed in patron's own rating and review of a title.
+	createReview(review) {
+		return this.client.put('reviews', review)
+	}
+
 	// Ratings for many ISBNs at once, so a page of search results costs a single request.
 	// The response is keyed by ISBN: [{ isbn, review_count, rating }, ...]
 	getCountsForIsbns(isbns) {

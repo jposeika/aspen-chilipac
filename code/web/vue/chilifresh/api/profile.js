@@ -7,6 +7,14 @@ export default class ProfileApi {
 		return this.client.get('profile')
 	}
 
+	activity(page = 1) {
+		return this.client.get('profile/activity', {
+			params: {
+				page,
+			}
+		})
+	}
+
 	update(data) {
 		return this.client.put('profile', data)
 	}

@@ -18,6 +18,7 @@ import RatingWidget from './components/Reviews/RatingWidget.vue';
 import RatingFull from './components/Reviews/RatingFull.vue';
 import ReviewsPage from './components/Reviews/ReviewsPage.vue';
 import EditProfilePage from './components/Profile/EditProfilePage.vue';
+import ProfileActivity from './components/Profile/ProfileActivity.vue';
 
 const pinia = createPinia();
 
@@ -40,6 +41,7 @@ const components = {
 	'chilifresh-rating-full': RatingFull,
 	'chilifresh-reviews': ReviewsPage,
 	'edit-profile-page': EditProfilePage,
+	'profile-activity': ProfileActivity,
 };
 
 function mount(element, componentName, props) {

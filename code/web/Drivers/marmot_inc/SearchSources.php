@@ -41,6 +41,12 @@ class SearchSources {
 		if ($searchObject == null) {
 			$searchObject = SearchSources::getSearcherForSource($source);
 		}
+		//The ChiliPAC booklist search that replaces lists only does a keyword search
+		global $interface;
+		if ($source == 'lists' && !empty($interface) && !empty($interface->getVariable('chiliPacEnabled')) && is_object($searchObject)) {
+			$keywordIndex = $searchObject->getDefaultIndex();
+			return [$keywordIndex => $searchObject->getSearchIndexes()[$keywordIndex]];
+		}
 		return is_object($searchObject) ? $searchObject->getSearchIndexes() : [];
 	}
 

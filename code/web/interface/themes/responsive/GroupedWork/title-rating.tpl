@@ -1,7 +1,7 @@
 {strip}
 {if $showRatings == 1}
 	<div class="rate{$summId}">
-		{if !empty($chiliPacReviewsEnabled)}
+		{if !empty($chiliPacEnabled)}
 			{* ChiliFresh ratings replace Aspen's own rater; no .rater element so ratings.js leaves this alone *}
 			{* Ratings for the whole page are loaded in one request by the init-ratings component *}
 			<div data-chilifresh-component="chilifresh-rating" data-props='{ldelim}"workId":"{$id|escape:javascript}"{rdelim}'></div>

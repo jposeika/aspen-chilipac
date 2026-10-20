@@ -1,7 +1,7 @@
 {if $showRatings || $showComments}
 {strip}
 	<div class="full-rating">
-		{if !empty($chiliPacReviewsEnabled)}
+		{if !empty($chiliPacEnabled)}
 			{* ChiliFresh ratings replace Aspen's rating summary, histogram and "Add a Review" button *}
 			{* Includes the grouped work's ISBNs so ratings are totalled across every edition *}
 			{chilipac_rating_props id=$recordDriver->getPermanentId() recordDriver=$recordDriver assign="chiliPacRatingProps"}

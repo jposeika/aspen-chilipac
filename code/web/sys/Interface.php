@@ -345,7 +345,6 @@ class UInterface extends Smarty {
 
 		$chiliPacEnabled = false;
 		$chiliPacApiKey = '';
-		$chiliPacReviewsEnabled = false;
 		if (!empty($library->chiliFreshSettingId) && $library->chiliFreshSettingId > 0) {
 			require_once ROOT_DIR . '/sys/Enrichment/ChiliFreshSetting.php';
 			$chiliFreshSetting = new ChiliFreshSetting();
@@ -353,13 +352,10 @@ class UInterface extends Smarty {
 			if ($chiliFreshSetting->find(true) && $chiliFreshSetting->chiliPacEnabled) {
 				$chiliPacEnabled = true;
 				$chiliPacApiKey = $chiliFreshSetting->chiliPacApiKey ?? '';
-				//When on, ChiliFresh ratings/reviews take the place of Aspen's own throughout the interface
-				$chiliPacReviewsEnabled = !empty($chiliFreshSetting->chiliPacReviewsEnabled);
 			}
 		}
 		$this->assign('chiliPacEnabled', $chiliPacEnabled);
 		$this->assign('chiliPacApiKey', $chiliPacApiKey);
-		$this->assign('chiliPacReviewsEnabled', $chiliPacReviewsEnabled);
 		$this->assign('chiliPacToken', $_SESSION['chiliPacToken'] ?? '');
 		$this->assign('chiliPacHashId', $_SESSION['chiliPacHashId'] ?? '');
 		$this->assign('chiliPacStaff', $_SESSION['chiliPacStaff'] ?? false);

@@ -645,7 +645,7 @@ class Search_Results extends ResultsAction {
 			$interface->assign('chiliPacBibMap', $chiliPacBibMap);
 
 			//ChiliFresh matches ratings by ISBN, so the whole page is resolved in one request.
-			if (!empty($interface->getVariable('chiliPacReviewsEnabled'))) {
+			if (!empty($interface->getVariable('chiliPacEnabled'))) {
 				$interface->assign('chiliPacIsbnMap', json_encode(
 					ChilipacApi::getIsbnMapForRecordSet($recordSet),
 					JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP

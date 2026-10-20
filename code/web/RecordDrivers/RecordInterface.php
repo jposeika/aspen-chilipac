@@ -249,7 +249,7 @@ abstract class RecordInterface {
 			'hideByDefault' => true,
 		];
 		if ($interface->getVariable('showComments')) {
-			if ($interface->getVariable('chiliPacReviewsEnabled')) {
+			if ($interface->getVariable('chiliPacEnabled')) {
 				//ChiliFresh owns reviews. Reuse the borrowerReviews key so the tab keeps its place
 				//in each library's configured More Details order.
 				require_once ROOT_DIR . '/sys/Enrichment/ChilipacApi.php';

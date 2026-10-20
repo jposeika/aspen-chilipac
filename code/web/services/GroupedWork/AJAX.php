@@ -685,8 +685,8 @@ class GroupedWork_AJAX extends JSON_Action {
 	 * @return array|null An error result to return to the caller, or null when writing is allowed.
 	 */
 	private function getUserReviewsDisabledResult(bool $isReview) : ?array {
-		require_once ROOT_DIR . '/sys/Enrichment/ChiliFreshSetting.php';
-		if (ChiliFreshSetting::reviewsReplaceAspen()) {
+		global $interface;
+		if (!empty($interface->getVariable('chiliPacEnabled'))) {
 			return [
 				'result' => false,
 				'message' => 'Ratings and reviews are handled by ChiliFresh for this library.',
@@ -799,8 +799,7 @@ class GroupedWork_AJAX extends JSON_Action {
 
 		//When ChiliFresh owns reviews it renders its own panel. Flag that so the caller leaves the
 		//panel alone instead of hiding it as it would for an empty set of Aspen reviews.
-		require_once ROOT_DIR . '/sys/Enrichment/ChiliFreshSetting.php';
-		if (ChiliFreshSetting::reviewsReplaceAspen()) {
+		if (!empty($interface->getVariable('chiliPacEnabled'))) {
 			return [
 				'numSyndicatedReviews' => $numSyndicatedReviews,
 				'syndicatedReviewsHtml' => $interface->fetch('GroupedWork/view-syndicated-reviews.tpl'),

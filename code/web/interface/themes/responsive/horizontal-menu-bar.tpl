@@ -70,6 +70,10 @@
 	</div>
 	<div class="menu-section menu-section-right">
 		{if !empty($chiliPacEnabled)}
+			<a href="/Booklists/Search" class="menu-icon menu-bar-option" title="{translate text='Search Booklists' inAttribute=true isPublicFacing=true}">
+				<i class="fas fa-search fa-lg" role="presentation"></i>
+				<span class="menu-bar-label hidden-inline-block-xs">{translate text="Search Booklists" isPublicFacing=true}</span>
+			</a>
 			<a href="/Profile/Home" class="menu-icon menu-bar-option" title="{translate text='My Profile' inAttribute=true isPublicFacing=true}">
 				<i class="fas fa-id-card fa-lg" role="presentation"></i>
 				<span class="menu-bar-label hidden-inline-block-xs">{translate text="My Profile" isPublicFacing=true}</span>

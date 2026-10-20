@@ -49,6 +49,11 @@ class Union_Search extends ResultsAction {
 			$interface->assign('action', $action);
 			$this->searchResultsAction = new OpenArchives_Results();
 			$this->searchResultsAction->launch();
+		} elseif ($searchSource == 'lists' && !empty($interface->getVariable('chiliPacEnabled'))) {
+			//ChiliPAC booklists replace Aspen's user lists in the search box
+			$lookfor = $_REQUEST['lookfor'] ?? '';
+			header('Location: /Booklists/Search' . (strlen($lookfor) > 0 ? '?s=' . urlencode($lookfor) : ''));
+			die();
 		} elseif ($searchSource == 'lists') {
 			require_once(ROOT_DIR . '/services/Lists/Results.php');
 			$module = 'Lists';

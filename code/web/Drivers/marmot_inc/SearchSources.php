@@ -243,9 +243,12 @@ class SearchSources {
 				}
 			}
 
+			//With ChiliPAC, searching lists goes to the ChiliPAC booklist search instead (see Union_Search)
+			global $interface;
+			$chiliPacEnabled = !empty($interface) && !empty($interface->getVariable('chiliPacEnabled'));
 			$searchOptions['lists'] = [
-				'name' => 'Lists',
-				'description' => 'User Lists',
+				'name' => $chiliPacEnabled ? 'Booklists' : 'Lists',
+				'description' => $chiliPacEnabled ? 'Booklists' : 'User Lists',
 				'catalogType' => 'lists',
 				'hasAdvancedSearch' => false,
 			];

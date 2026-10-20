@@ -21,6 +21,9 @@
 							<div class="myAccountLink{if $activeProfilePage == 'bookshelf'} active{/if}">
 								<a href="/Profile/Bookshelf">{translate text="Bookshelf" isPublicFacing=true}</a>
 							</div>
+							<div class="myAccountLink{if $activeProfilePage == 'edit'} active{/if}">
+								<a href="/Profile/Edit">{translate text="Edit Profile" isPublicFacing=true}</a>
+							</div>
 						</div>
 					</div>
 				</div>
